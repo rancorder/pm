@@ -69,3 +69,7 @@ flowchart TD
 - PoC成功条件
 - 実装リスク
 - Claude Code / Codex向け実装指示
+
+## ワンショット vs 3ターン
+
+`review_prompt.md`は7ロールを1回のプロンプトで生成する設計（速いが、対立が作文になるリスクがある）。AI活用が前提の要望や、安全・契約・証跡が重い要望では `role_separation_protocol.md` の3ターン構成（AI EngineerとRisk/Opsだけ独立生成）を使う。使い分けの基準は同ファイル末尾の表を参照。

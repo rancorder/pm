@@ -99,6 +99,7 @@ pm-prototype-os/root_cause_engine/examples.md
 pm-prototype-os/virtual_design_review/README.md
 pm-prototype-os/virtual_design_review/expert_roles.md
 pm-prototype-os/virtual_design_review/review_prompt.md
+pm-prototype-os/virtual_design_review/role_separation_protocol.md
 pm-prototype-os/virtual_design_review/conflict_resolution.md
 pm-prototype-os/virtual_design_review/final_decision_template.md
 pm-prototype-os/virtual_design_review/example_drawing_search.md
@@ -113,6 +114,7 @@ pm-prototype-os/virtual_design_review/example_drawing_search.md
 ```text
 pm-prototype-os/domain/construction_domain_map.md
 pm-prototype-os/domain/construction_glossary.md
+pm-prototype-os/domain/construction_standards.md
 pm-prototype-os/domain/construction_pm_questions.md
 pm-prototype-os/domain/construction_ai_opportunity_cards.md
 pm-prototype-os/domain/construction_research_sources.md
@@ -157,18 +159,22 @@ pm-prototype-os/library/technology_decision_rules.md
 
 # 5. AIツール別の使い分け情報源
 
-GPT、Claude、Claude Code、Codexを使い分けるための情報。
+GPT、Claude、Claude Code、Codex、Geminiを使い分けるための情報。
 
 ```text
 pm-prototype-os/ai_tools/gpt.md
 pm-prototype-os/ai_tools/claude.md
 pm-prototype-os/ai_tools/claude_code.md
 pm-prototype-os/ai_tools/codex.md
+pm-prototype-os/ai_tools/gemini.md
 ```
 
 ## 基本分担
 
 ```text
+Gemini
+→ マルチモーダル一次解析（音声議事録の文字起こし、スキャン図面/画像の一次読解）
+
 GPT
 → 構造化、PM判断、真因追求、要件定義
 
@@ -190,6 +196,8 @@ Codex
 
 ```text
 pm-prototype-os/pm_brain/README.md
+pm-prototype-os/pm_brain/cases/        ← 案件ファイル本体（_template.mdをコピーして追加）
+pm-prototype-os/pm_brain/scripts/search_cases.py  ← 検索スクリプト
 ```
 
 ## 保存対象

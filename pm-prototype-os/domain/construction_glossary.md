@@ -28,6 +28,8 @@ PM Prototype OSで使う建設業ドメイン用語集。
 | 属性情報 | 部材名、材料、寸法、性能など | チェック・積算・維持管理の鍵 |
 | IDS | BIM情報要求を機械可読化する仕様 | AI生成・検証の新テーマ |
 
+> ISO 19650 / CDE / BCF / COBie / Digital Twin / buildingSMART / Civil 3D / Navisworksなど、標準規格・周辺ツールは `construction_standards.md` に分離して整理している。
+
 ## 積算・見積
 
 | 用語 | 意味 | PMでの見方 |
