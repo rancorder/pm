@@ -1,0 +1,1036 @@
+From aa907e505553793ac657e5d5733e454bc2f4b2a4 Mon Sep 17 00:00:00 2001
+From: Claude <claude@anthropic.local>
+Date: Tue, 30 Jun 2026 23:45:04 +0000
+Subject: [PATCH] =?UTF-8?q?v0.2:=20S/A=E5=84=AA=E5=85=88=E5=BA=A6=E3=81=AE?=
+ =?UTF-8?q?=E5=95=8F=E9=A1=8C=E7=82=B9=E3=82=92=E4=BF=AE=E6=AD=A3?=
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+
+- リポジトリの二重人格問題を解消（面接プレゼンをarchive/へ隔離、ルートREADME新設）
+- PM Brain最小実装（cases/ + search_cases.py、動作確認済み）
+- README.mdとレビュー依頼のゴール数値矛盾を解消（30分/2時間の2段階ゴール）
+- 仮説スコアリングにフロア制約を追加（Evidence低でSランク到達を防止）
+- ai_tools/gemini.md新設、関連ファイルの使い分け表に反映
+- domain/construction_standards.md新設（ISO19650/CDE/BCF/COBie/Digital Twin等）
+- virtual_design_review/role_separation_protocol.md新設（AI Engineer/Risk-Opsの2ロール分離）
+---
+ CHANGELOG.md                                  |  30 ++++
+ README.md                                     |  26 +++
+ archive/interview-presentation-2025/README.md |  13 ++
+ .../interview-presentation-2025/index.html    |   0
+ .../package-lock.json                         |   0
+ .../interview-presentation-2025/package.json  |   0
+ .../interview-presentation-2025/src}/App.tsx  |   0
+ .../interview-presentation-2025/src}/main.tsx |   0
+ .../interview-presentation-2025/tsconfig.json |   0
+ .../tsconfig.node.json                        |   0
+ .../interview-presentation-2025/vercel.json   |   0
+ .../vite.config.ts                            |   0
+ pm-prototype-os/08_ai_tool_routing.md         |  15 ++
+ pm-prototype-os/README.md                     |  21 ++-
+ pm-prototype-os/ai_tools/gemini.md            |  85 ++++++++++
+ .../domain/construction_glossary.md           |   2 +
+ .../domain/construction_standards.md          |  70 +++++++++
+ pm-prototype-os/pm_brain/README.md            |  40 ++++-
+ pm-prototype-os/pm_brain/cases/_template.md   |  42 +++++
+ .../cases/case_001_demo_drawing_search.md     |  79 ++++++++++
+ .../pm_brain/scripts/search_cases.py          | 138 ++++++++++++++++
+ .../gpt_claude_project_sources.md             |  10 +-
+ .../root_cause_engine/hypothesis_scoring.md   |  30 ++++
+ .../virtual_design_review/README.md           |   4 +
+ .../role_separation_protocol.md               | 148 ++++++++++++++++++
+ 25 files changed, 748 insertions(+), 5 deletions(-)
+ create mode 100644 CHANGELOG.md
+ create mode 100644 README.md
+ create mode 100644 archive/interview-presentation-2025/README.md
+ rename index.html => archive/interview-presentation-2025/index.html (100%)
+ rename package-lock.json => archive/interview-presentation-2025/package-lock.json (100%)
+ rename package.json => archive/interview-presentation-2025/package.json (100%)
+ rename {src => archive/interview-presentation-2025/src}/App.tsx (100%)
+ rename {src => archive/interview-presentation-2025/src}/main.tsx (100%)
+ rename tsconfig.json => archive/interview-presentation-2025/tsconfig.json (100%)
+ rename tsconfig.node.json => archive/interview-presentation-2025/tsconfig.node.json (100%)
+ rename vercel.json => archive/interview-presentation-2025/vercel.json (100%)
+ rename vite.config.ts => archive/interview-presentation-2025/vite.config.ts (100%)
+ create mode 100644 pm-prototype-os/ai_tools/gemini.md
+ create mode 100644 pm-prototype-os/domain/construction_standards.md
+ create mode 100644 pm-prototype-os/pm_brain/cases/_template.md
+ create mode 100644 pm-prototype-os/pm_brain/cases/case_001_demo_drawing_search.md
+ create mode 100644 pm-prototype-os/pm_brain/scripts/search_cases.py
+ create mode 100644 pm-prototype-os/virtual_design_review/role_separation_protocol.md
+
+diff --git a/CHANGELOG.md b/CHANGELOG.md
+new file mode 100644
+index 0000000..d38b064
+--- /dev/null
++++ b/CHANGELOG.md
+@@ -0,0 +1,30 @@
++# Changelog
++
++## v0.2（レビュー反映版）
++
++レビューで指摘された「問題点」のうち、S優先度4件＋A優先度3件を修正。
++
++### 致命的な設計課題の解消
++
++- **リポジトリの二重人格問題**：PM Prototype OSと無関係な面接プレゼン（"Project Failure Simulator"）を `archive/interview-presentation-2025/` へ隔離。ルートに `README.md` を新設し、このリポジトリの主役がPM Prototype OSであることを明記。
++- **PM Brainの空問題**：`pm_brain/cases/` に案件テンプレートと検索スクリプト（`scripts/search_cases.py`、外部ライブラリ不要）を追加。動作確認用の最初の1件（デモケース）も登録し、検索が実際に機能することを確認済み。
++- **ゴール数値の矛盾**：README.mdの「2時間」とレビュー依頼文の「30分」を、30分（一次仮説）／2時間（実装着手）の2段階ゴールとして統一。
++- **仮説スコアリングの穴**：Evidence（根拠）が低い仮説が合計点だけでSランクに届いてしまう問題に対し、フロア制約（Evidence<=2でB以下、Evidence<=1でC以下）を追加。実運用向けのQuick Scoreモード（コア4項目）も追加。
++
++### A優先度の解消
++
++- **Gemini不在**：`ai_tools/gemini.md`を新設し、マルチモーダル一次解析（音声議事録・スキャン図面）の役割を明文化。`08_ai_tool_routing.md`と`project_context/gpt_claude_project_sources.md`の使い分け表にも反映。
++- **建設標準の欠落**：`domain/construction_standards.md`を新設し、ISO 19650 / CDE / BCF / COBie / Digital Twin / buildingSMART / Civil 3D / Navisworksを追加。`construction_glossary.md`から相互参照。
++- **Virtual Design Reviewのワンショット問題**：`virtual_design_review/role_separation_protocol.md`を新設。AI EngineerとRisk/Operations Reviewerの2ロールだけを別ターンで独立生成させる3ターン構成のプロンプトを追加。
++
++### 未着手（B/C優先度、次のイテレーションで対応）
++
++- Tech Cardのスケール（現状3件→主要OSS10件程度へ）
++- `08_ai_tool_routing.md`と`ai_tools/*.md`の役割分担表の重複統合
++- `oss_catalog.md`と`construction_research_sources.md`の重複統合
++- PoC評価とPM Brainの自動連携（現状は手動転記ルールの明文化のみ）
++- web-ifc/Speckleを使った実働BIM MVPスターターテンプレート
++
++## v0.1
++
++初版。47件のMarkdownでRoot Cause Engine / Virtual Design Review / 建設ドメイン知識 / OSSカタログ / PM Brain（テンプレートのみ）/ AIツールルーティング（Gemini除く）を構築。
+diff --git a/README.md b/README.md
+new file mode 100644
+index 0000000..9f5efee
+--- /dev/null
++++ b/README.md
+@@ -0,0 +1,26 @@
++# pm
++
++このリポジトリの主役は **PM Prototype OS** です。
++
++→ [`pm-prototype-os/README.md`](./pm-prototype-os/README.md)
++
++ArentでのエンジニアPM業務（建設DX）に向けた、顧客ヒアリング・真因追求・要件定義・MVP設計・プロトタイプ指示を高速化するためのPM補助OS（GPT/Claude/Claude Code/Codex/Geminiに読み込ませて使うナレッジ＋プロンプト体系）です。
++
++## このリポジトリの構成
++
++```text
++pm/
++  pm-prototype-os/   ← 本体。PM Prototype OSの全コンテンツ
++  archive/           ← 過去の別プロジェクト（PM Prototype OSとは無関係）
++  CHANGELOG.md        ← バージョン履歴
++```
++
++## クイックスタート
++
++1. [`pm-prototype-os/README.md`](./pm-prototype-os/README.md) を読む
++2. [`pm-prototype-os/project_context/gpt_claude_project_sources.md`](./pm-prototype-os/project_context/gpt_claude_project_sources.md) をGPT/Claude Projectに読み込ませる
++3. 顧客打ち合わせ後、[`pm-prototype-os/01_customer_interview.md`](./pm-prototype-os/01_customer_interview.md) の型に沿って入力する
++
++## `archive/` について
++
++`archive/interview-presentation-2025/` は、PM Prototype OSとは無関係な別プロジェクト（面接用プレゼンテーション）です。リポジトリの履歴上の経緯でルートに同居していたものを隔離しています。詳細は同フォルダ内のREADMEを参照してください。
+diff --git a/archive/interview-presentation-2025/README.md b/archive/interview-presentation-2025/README.md
+new file mode 100644
+index 0000000..6bf6464
+--- /dev/null
++++ b/archive/interview-presentation-2025/README.md
+@@ -0,0 +1,13 @@
++# 旧コンテンツ：面接プレゼンテーション（Project Failure Simulator）
++
++このフォルダは、PM Prototype OSとは無関係の別プロジェクトです。
++
++2025年の面接（FPT面接）向けに作成したインタラクティブプレゼン（"Project Failure Simulator" / 失敗シミュレーター）の実装で、リポジトリのルートに直接置かれていたため、PM Prototype OSのコード資産であるかのように見えてしまっていました。
++
++## 経緯
++
++このリポジトリ（`rancorder/pm`）は元々この面接プレゼン用に作られ、後から`pm-prototype-os/`が追加されました。`vercel.json`のビルド対象もこちらを向いたままだったため、リポジトリを開いた人（採用担当者・レビュアーを含む）が「PM Prototype OSは実は動くコードを持たない」と誤解する原因になっていました。
++
++## 今後の対応（推奨）
++
++理想は別リポジトリ（例：`rancorder/interview-presentation-2025`）へ完全に分離することです。このフォルダは暫定的な隔離措置です。
+diff --git a/index.html b/archive/interview-presentation-2025/index.html
+similarity index 100%
+rename from index.html
+rename to archive/interview-presentation-2025/index.html
+diff --git a/package-lock.json b/archive/interview-presentation-2025/package-lock.json
+similarity index 100%
+rename from package-lock.json
+rename to archive/interview-presentation-2025/package-lock.json
+diff --git a/package.json b/archive/interview-presentation-2025/package.json
+similarity index 100%
+rename from package.json
+rename to archive/interview-presentation-2025/package.json
+diff --git a/src/App.tsx b/archive/interview-presentation-2025/src/App.tsx
+similarity index 100%
+rename from src/App.tsx
+rename to archive/interview-presentation-2025/src/App.tsx
+diff --git a/src/main.tsx b/archive/interview-presentation-2025/src/main.tsx
+similarity index 100%
+rename from src/main.tsx
+rename to archive/interview-presentation-2025/src/main.tsx
+diff --git a/tsconfig.json b/archive/interview-presentation-2025/tsconfig.json
+similarity index 100%
+rename from tsconfig.json
+rename to archive/interview-presentation-2025/tsconfig.json
+diff --git a/tsconfig.node.json b/archive/interview-presentation-2025/tsconfig.node.json
+similarity index 100%
+rename from tsconfig.node.json
+rename to archive/interview-presentation-2025/tsconfig.node.json
+diff --git a/vercel.json b/archive/interview-presentation-2025/vercel.json
+similarity index 100%
+rename from vercel.json
+rename to archive/interview-presentation-2025/vercel.json
+diff --git a/vite.config.ts b/archive/interview-presentation-2025/vite.config.ts
+similarity index 100%
+rename from vite.config.ts
+rename to archive/interview-presentation-2025/vite.config.ts
+diff --git a/pm-prototype-os/08_ai_tool_routing.md b/pm-prototype-os/08_ai_tool_routing.md
+index bfa036f..78fef7e 100644
+--- a/pm-prototype-os/08_ai_tool_routing.md
++++ b/pm-prototype-os/08_ai_tool_routing.md
+@@ -18,12 +18,19 @@ Claude Code
+ 
+ Codex
+ → プロトタイプ生成・コード実装・テスト・PR単位の作業
++
++Gemini
++→ マルチモーダル一次解析（音声議事録の文字起こし・構造化、スキャン図面/画像の一次読解）
+ ```
+ 
++Geminiはテキスト化される前の生データ（音声・画像・スキャンPDF）の入口を担当し、そこで作った構造化テキストをClaude/GPTに渡す。GPT/Claude/Claude Code/Codexの4ツールがテキスト以降の工程を担当する、という位置づけ。詳細は `ai_tools/gemini.md` を参照。
++
+ ## PM業務フローでの使い分け
+ 
+ | 工程 | 主担当AI | 補助AI | 出力 |
+ |---|---|---|---|
++| 音声議事録の文字起こし・構造化 | Gemini | Claude | 構造化議事録 |
++| スキャン図面/画像の一次読解 | Gemini | Claude Code | 表題欄情報・読み取り候補 |
+ | 顧客ヒアリング後の整理 | GPT | Claude | 課題構造・論点 |
+ | 議事録の清書 | Claude | GPT | 議事録・要約 |
+ | 要件定義 | GPT | Claude | 要件一覧・MVP |
+@@ -34,6 +41,13 @@ Codex
+ | レビュー観点整理 | GPT | Claude | PMレビュー観点 |
+ | エンジニア依頼文 | Claude | GPT | 依頼文・仕様共有 |
+ 
++### Geminiを使う場面
++
++- 音声・動画のまま手元にある議事録を構造化したい
++- スキャンPDF図面や手書きメモを読みたい
++- 現場写真・ホワイトボードの内容を記録に残したい
++- 既存の動画文字起こしパイプライン（Gemini API + Drive API）の延長で処理したい
++
+ ## 使い分けの判断基準
+ 
+ ### GPTを使う場面
+@@ -79,6 +93,7 @@ Codex
+ ## 最強パターン
+ 
+ ```text
++0. （音声/スキャン資料があれば）Geminiで一次解析・構造化
+ 1. Claudeで議事録と資料を整理
+ 2. GPTで課題・要件・MVPを構造化
+ 3. Claude Codeで既存repo/技術候補を読む
+diff --git a/pm-prototype-os/README.md b/pm-prototype-os/README.md
+index 9fab040..f0094c0 100644
+--- a/pm-prototype-os/README.md
++++ b/pm-prototype-os/README.md
+@@ -79,11 +79,26 @@ pm-prototype-os/
+ 
+ ## 最終目標
+ 
+-60分の顧客打ち合わせ後、2時間以内に以下を出せるPMになる。
++目標値を1つに決め切らず「30分」と「2時間」を別の用途で混在させていたのが旧版の問題だった。これを2段階のゴールとして明確化する。
++
++### 30分ゴール（一次仮説・顧客との次回約束用）
++
++60分の顧客打ち合わせ直後、30分以内に以下を出す。PM Brainに類似案件が蓄積されているほど、この30分の精度が上がる設計。
++
++- 表面的な要望と真因候補（複数）
++- 切り分け質問（次回聞くこと）
++- MVPの方向性（3案の骨子レベル）
++- 技術候補の当たり（カテゴリレベル）
++
++### 2時間ゴール（実装着手用）
++
++30分ゴールの内容をベースに、2時間以内に以下まで仕上げる。
+ 
+ - 要件定義
+-- MVP案
++- MVP案（確定）
+ - 画面イメージ
+-- 技術候補
++- 技術候補（確定）
+ - エンジニア向け実装方針
+ - 次回顧客確認事項
++
++30分で全部を確定させようとしないこと。30分は「次に何を確認すべきかが明確になっている」状態を指し、2時間で実装着手できる粒度に仕上げる。
+diff --git a/pm-prototype-os/ai_tools/gemini.md b/pm-prototype-os/ai_tools/gemini.md
+new file mode 100644
+index 0000000..e9ecfa0
+--- /dev/null
++++ b/pm-prototype-os/ai_tools/gemini.md
+@@ -0,0 +1,85 @@
++# Gemini.md
++
++PM Prototype OSにおけるGeminiの役割。
++
++## 役割
++
++Geminiは、マルチモーダル一次解析の担当。GPT/Claudeがテキストに変換した後の処理を受け持つのに対し、Geminiは「テキスト化される前」の生データの入口を受け持つ。
++
++主な用途は以下。
++
++- スキャンPDF図面・手書きメモの一次読解
++- 音声議事録の文字起こし＋構造化（既存の動画文字起こしパイプラインの延長）
++- 長尺の打ち合わせ録音から、決定事項・未決事項・宿題を直接抽出
++- 写真（現場写真・ホワイトボード撮影）からのテキスト/図面情報抽出
++
++## 得意な仕事
++
++```text
++生データ（音声/画像/スキャンPDF）
++↓
++マルチモーダル理解
++↓
++構造化テキスト
++↓
++Claude/GPTに渡せる形
++```
++
++## 使うタイミング
++
++- 議事録が音声/動画のまま手元にあるとき
++- 図面がスキャンPDFで、テキスト抽出ツールが効かないとき
++- 現場写真やホワイトボードの内容を記録に残したいとき
++- 既存の動画文字起こしパイプライン（Gemini API + Drive API）を流用できる案件のとき
++
++## 標準プロンプト：音声議事録の構造化
++
++```text
++以下の打ち合わせ音声/文字起こしから、PMが要件定義に使える形で構造化してください。
++
++# 出力
++1. 会議の目的
++2. 発言者ごとの要約
++3. 決定事項
++4. 未決事項（担当者・期限があれば含める）
++5. 顧客の感情・温度感（急いでいる/様子見など）
++6. 表面的な要望
++7. 次回確認すべきこと
++
++# 注意
++- 発言と推測を分ける
++- 聞き取れなかった箇所は明示する
++- 専門用語は可能な範囲で正規化する（表記ゆれを統一する）
++```
++
++## 標準プロンプト：スキャン図面の一次読解
++
++```text
++以下のスキャン図面/手書きメモ画像から、テキストとして読み取れる情報を抽出してください。
++
++# 出力
++- 表題欄の情報（図面番号、版、作成日、案件名）
++- 記載されている寸法・部材名・仕様の候補
++- 読み取れなかった/不確実な箇所
++- 後続のRAG/検索に使えそうなキーワード
++
++# 注意
++- 読み取れない箇所は「不明」と書き、推測で埋めない
++- OCR的な読み取りであり、設計判断は行わない
++```
++
++## Geminiにやらせないこと
++
++- 設計判断・要件の確定（一次解析の担当であり、PM判断はGPT/Claudeに渡す）
++- 読み取れない箇所の推測による埋め合わせ
++- 顧客の機密音声・画像を許可なく外部に保持させる運用
++
++## PMとしての確認ポイント
++
++- 一次解析結果が、後続のClaude（議事録整理）・GPT（要件定義）にそのまま渡せる形になっているか
++- 「不明」「読み取れない」が適切に残されているか（自信過剰な断定になっていないか）
++- 同じ情報をGeminiとOCRツール（PyMuPDF/Tesseract等）の両方で扱う必要があるかの判断ができているか
++
++## 既存パイプラインとの接続
++
++動画文字起こし自動パイプライン（Gemini API + Drive API、Pydantic構造化出力）をすでに運用中であれば、ここでの「音声議事録の構造化」プロンプトはそのパイプラインの出力フォーマットに合わせて調整する。PM Prototype OS側のテンプレートとパイプライン側のPydanticスキーマで項目名がズレないように、定期的に突き合わせること。
+diff --git a/pm-prototype-os/domain/construction_glossary.md b/pm-prototype-os/domain/construction_glossary.md
+index 8e25748..9551b5c 100644
+--- a/pm-prototype-os/domain/construction_glossary.md
++++ b/pm-prototype-os/domain/construction_glossary.md
+@@ -28,6 +28,8 @@ PM Prototype OSで使う建設業ドメイン用語集。
+ | 属性情報 | 部材名、材料、寸法、性能など | チェック・積算・維持管理の鍵 |
+ | IDS | BIM情報要求を機械可読化する仕様 | AI生成・検証の新テーマ |
+ 
++> ISO 19650 / CDE / BCF / COBie / Digital Twin / buildingSMART / Civil 3D / Navisworksなど、標準規格・周辺ツールは `construction_standards.md` に分離して整理している。
++
+ ## 積算・見積
+ 
+ | 用語 | 意味 | PMでの見方 |
+diff --git a/pm-prototype-os/domain/construction_standards.md b/pm-prototype-os/domain/construction_standards.md
+new file mode 100644
+index 0000000..7c1e628
+--- /dev/null
++++ b/pm-prototype-os/domain/construction_standards.md
+@@ -0,0 +1,70 @@
++# Construction Standards
++
++`construction_glossary.md`は業務用語中心のため、Arent文脈で顧客やエンジニアから出てくる可能性が高い**標準規格・周辺ツール**を別出しで整理する。
++
++## なぜ別ファイルにしたか
++
++PM Prototype OS v0.1のレビューで、ISO 19650・CDE・BCF・COBie・Digital Twin・buildingSMART・Civil 3D・Navisworchksが用語集・OSSカタログのどこにも0件であることが判明した。建設業ドメインの理解として明確な穴だったため追加する。
++
++---
++
++## ISO 19650（情報マネジメント国際標準）
++
++| 項目 | 内容 |
++|---|---|
++| 正式名称 | Organization and digitization of information about buildings and civil engineering works, including building information modelling (BIM) — Information management using building information modelling |
++| 構成 | Part 1（概念と原則）/ Part 2（プロジェクトの引渡し段階）/ Part 3（資産運用段階） |
++| PMでの見方 | 顧客が「BIM発注要件」「EIR」「BEP」と言ったら、ほぼ確実にISO 19650文脈。情報マネジメントの責任分界・命名規則・承認フローを定義する標準 |
++| 真因追求での使い道 | `Rule` / `Organization`カテゴリの真因仮説に直結する。「BIM活用したいが運用ルールがバラバラ」という顧客課題は、ISO 19650準拠の運用ルール未整備が真因であることが多い |
++
++## CDE（Common Data Environment）
++
++| 項目 | 内容 |
++|---|---|
++| 意味 | プロジェクトの情報（図面・BIM・議事録・仕様書）を一元管理する環境。ISO 19650で要求される概念 |
++| PMでの見方 | 「図面・BIMモデル・議事録の正本がどこにあるか分からない」という顧客課題は、CDEが存在しない/機能していないことが真因であるケースが多い |
++| Root Cause Engineとの接続 | `Data`カテゴリの真因候補に「CDE不在・形骸化」を追加する |
++| MVP化の方向性 | 完全なCDE構築はPoC規模を超える。初期MVPは「対象案件1件分の正本ファイル一覧＋更新履歴の可視化」に絞る |
++
++## BCF（BIM Collaboration Format）
++
++| 項目 | 内容 |
++|---|---|
++| 意味 | buildingSMART策定。BIMモデル上の指摘・課題をソフトウェア間でやり取りするための標準フォーマット（XML） |
++| PMでの見方 | 設計レビュー・指摘管理のMVPを作るなら、BCFに準拠した形でデータを持たせておくと、将来Revit/Navisworks/Solibri等の既存ツールと接続しやすくなる |
++| MVP化の方向性 | `prototype_ui_patterns.md`の「UI Pattern 04: AI Candidate Review Board」と相性が良い。候補カードの内部データ構造をBCF項目（タイトル・説明・ステータス・優先度・関連要素ID）に寄せておく |
++
++## COBie（Construction Operations Building Information Exchange）
++
++| 項目 | 内容 |
++|---|---|
++| 意味 | 維持管理段階で必要な設備・資産情報を、BIMから構造化データとして引き渡すための標準 |
++| PMでの見方 | `industry_domain_library.md`08番「維持管理/FM」と直結。「設備台帳と図面が分断」という顧客課題の理想形がCOBie形式での引き渡し |
++| MVP化の方向性 | COBie完全準拠は重い。初期MVPは「IFCから抽出した属性をCOBie項目（Type/Component/System等）にマッピングできるか確認する」程度から始める |
++
++## Digital Twin
++
++| 項目 | 内容 |
++|---|---|
++| 意味 | 物理アセット（建物・設備・インフラ）をデジタル上にリアルタイムに近い形で再現し、監視・予測・意思決定に使う仕組み |
++| PMでの見方 | 経営層・事業責任者に刺さるキーワード。`virtual_design_review/expert_roles.md`のBusiness Ownerロールが「横展開できるか」を語る際の語彙として使える |
++| 注意 | 顧客が「Digital Twinをやりたい」と言ったときほど、Root Cause Engineで疑うべき。多くの場合、実態は「BIM/IFC属性すら整っていない」段階で、Digital Twinは数段階先のゴール |
++
++## buildingSMART
++
++| 項目 | 内容 |
++|---|---|
++| 意味 | IFC・BCF・IDS・MVD・IDM・bsDDなど、OpenBIM標準を策定する国際組織 |
++| PMでの見方 | 出典として明記しておくと提案資料の信頼性が上がる。「IFCは○○社の独自規格ではなく、buildingSMARTが策定するオープン標準」という説明は、ベンダーロックイン回避を重視する発注者に刺さる |
++
++## Civil 3D / Navisworks（Autodesk、Revit以外の主要ツール）
++
++| ツール | 領域 | PMでの見方 |
++|---|---|---|
++| Civil 3D | 土木設計（道路・造成・上下水道） | 土木領域の顧客では、Revitではなくこちらが主戦場。`industry_domain_library.md`02番「土木」のMVP候補を考える際は、IFCよりLandXML/Civil 3D形式を意識する |
++| Navisworks | 施工調整・干渉確認・4Dシミュレーション | 「配管・機器の干渉確認が大変」という課題は、Navisworksでの干渉チェック業務の属人化・非効率が真因であることが多い。Speckleのコネクタ経由でNavisworksデータを扱える可能性も検討する |
++
++## このファイルの使いどころ
++
++- 顧客ヒアリングで上記の単語が出たら、即座に「相手が何を指しているか」を確認する質問に変換する（`06_arent_domain_questions.md`に追加質問として統合してもよい）
++- Virtual Design ReviewのConstruction Domain Expertロールが、これらの標準を前提知識として持っているという体（てい）でレビューコメントを生成させる
+diff --git a/pm-prototype-os/pm_brain/README.md b/pm-prototype-os/pm_brain/README.md
+index cefdfb3..cfb48d2 100644
+--- a/pm-prototype-os/pm_brain/README.md
++++ b/pm-prototype-os/pm_brain/README.md
+@@ -2,7 +2,45 @@
+ 
+ PM Prototype OSを案件ごとに賢くするための記録領域。
+ 
+-## 目的
++## 実装（v0.2で追加）
++
++旧版はテンプレートのみで、実際に保存されたケースが0件だった。v0.2で最小実装を追加した。
++
++```text
++pm_brain/
++  README.md
++  cases/
++    _template.md          ← 新規ケース作成時にコピーする
++    case_001_demo_drawing_search.md  ← 動作確認用の最初の1件（デモ）
++  scripts/
++    search_cases.py        ← 検索スクリプト（外部ライブラリ不要）
++```
++
++### 新しい案件を追加する
++
++1. `cases/_template.md` を `cases/case_XXX_顧客名や案件名.md` としてコピー
++2. frontmatter（`industry` / `phase` / `cause_category` / `tech_category` / `status` / `poc_result`）を埋める
++3. 本文の各セクションを埋める
++
++### 検索する
++
++```bash
++cd pm_brain/scripts
++python3 search_cases.py                          # 全件一覧
++python3 search_cases.py --industry 建築            # 業界で絞り込み
++python3 search_cases.py --cause Data               # 真因カテゴリで絞り込み
++python3 search_cases.py --keyword 版管理            # キーワード検索
++python3 search_cases.py --industry 建築 --cause Data -v   # 複合条件＋学びの抜粋表示
++```
++
++ベクトルDBや埋め込み検索は意図的に使っていない。案件数が数十件を超えてから検討すれば十分で、最初の数年はfrontmatterベースの構造化検索で十分機能する（過剰実装を避ける、というOS自体の思想に合わせている）。
++
++### 運用ルール
++
++- 過去の資料を遡及的に大量投入しない。今動いている案件・直近の案件から追加していく（インプットの質を保つため）。
++- PoC評価（`library/poc_evaluation.md`）でGo/No-Go判定が出たら、そのままその案件の `成功/失敗` と `次案件に使える学び` を更新する。これを次の打ち合わせ前に必ず1回検索してから臨む。
++
++## 目的（変更なし）
+ 
+ 顧客ヒアリング、要件定義、プロトタイプ、顧客フィードバック、失敗・成功パターンを蓄積し、次案件で再利用する。
+ 
+diff --git a/pm-prototype-os/pm_brain/cases/_template.md b/pm-prototype-os/pm_brain/cases/_template.md
+new file mode 100644
+index 0000000..e327e0c
+--- /dev/null
++++ b/pm-prototype-os/pm_brain/cases/_template.md
+@@ -0,0 +1,42 @@
++---
++case_id: ""
++client: ""
++industry: ""           # 建築 / 土木 / プラント / 設備 / 電気 / 鉄骨 / 配筋 / 維持管理
++phase: ""              # 企画 / 基本設計 / 実施設計 / 積算 / 発注 / 施工計画 / 施工 / 検査 / 維持管理
++cause_category: []     # Data / Process / Tool / People / Rule / Organization / Contract / Cost のうち該当するもの
++tech_category: []      # RAG / Rule Check / Decision Log / BIM/IFC / CV / Agent など
++mvp_pattern: ""        # architecture_recommender.md の Pattern A〜G
++status: ""             # ヒアリング中 / MVP検証中 / PoC評価済み / 本番化検討 / クローズ
++poc_result: ""         # Go / Conditional Go / Hold / No-Go / 未評価
++date: ""               # YYYY-MM-DD
++---
++
++# {案件名}
++
++## 顧客発言
++
++## 表面的な要望
++
++## 本当の課題
++
++## 業務フロー
++
++## 要件
++
++## MVP
++
++## 採用技術
++
++## プロトタイプ
++
++## 顧客フィードバック
++
++## 成功/失敗
++
++## 次案件に使える学び
++
++## 関連ファイル
++
++- 議事録:
++- 要件定義書:
++- プロトタイプ:
+diff --git a/pm-prototype-os/pm_brain/cases/case_001_demo_drawing_search.md b/pm-prototype-os/pm_brain/cases/case_001_demo_drawing_search.md
+new file mode 100644
+index 0000000..1202338
+--- /dev/null
++++ b/pm-prototype-os/pm_brain/cases/case_001_demo_drawing_search.md
+@@ -0,0 +1,79 @@
++---
++case_id: "case_001"
++client: "デモケース（顧客名なし）"
++industry: "建築"
++phase: "実施設計"
++cause_category: ["Data", "Process"]
++tech_category: ["RAG", "BIM/IFC"]
++mvp_pattern: "Pattern A: Document Search MVP"
++status: "MVP検証中"
++poc_result: "未評価"
++date: "2026-07-01"
++---
++
++# 図面検索リクエスト（デモケース）
++
++> このケースは `virtual_design_review/example_drawing_search.md` の内容を、PM Brainの検索が実際に機能することを示すために最初の1件として登録したものです。実在の顧客案件ではありません。実案件が入り次第、デモケースとして残すか削除するか判断してください。
++
++## 顧客発言
++
++```text
++図面をAIで検索したい。
++```
++
++## 表面的な要望
++
++図面検索AIが欲しい。
++
++## 本当の課題
++
++- 図面の最新版が分からない
++- 図面番号ルールが不統一
++- 図面と仕様書が紐づいていない
++- 議事録の変更が図面に反映されたか追えない
++
++## 業務フロー
++
++現行：フォルダ検索／個人の記憶に依存。理想：図面台帳＋版管理＋根拠付き検索。
++
++## 要件
++
++- PDF図面またはIFCモデルを入力し、最新版・更新日・承認状態を一覧管理する
++- 図面テキスト・表題欄・関連仕様を検索可能にする
++
++## MVP
++
++1案件分の図面台帳＋版管理＋根拠付き検索の1画面プロトタイプ。
++
++## 採用技術
++
++```text
++Next.js
++shadcn/ui
++mock drawing metadata
++PDF text extraction mock
++source evidence panel
++```
++
++## プロトタイプ
++
++未着手（デモケースのため）。
++
++## 顧客フィードバック
++
++（デモケースのため記録なし）
++
++## 成功/失敗
++
++（デモケースのため未評価）
++
++## 次案件に使える学び
++
++- 「図面検索AIが欲しい」という発言は、ほぼ確実に版管理の崩れが背後にある。最初の切り分け質問は「探したいのは図面ファイルそのものか、図面内の情報か」が有効。
++- 初期MVPはRAGより先にメタデータ構造化（版・更新日・承認状態）から始める方が安全。
++
++## 関連ファイル
++
++- 議事録: なし（デモ）
++- 要件定義書: `virtual_design_review/example_drawing_search.md`
++- プロトタイプ: なし
+diff --git a/pm-prototype-os/pm_brain/scripts/search_cases.py b/pm-prototype-os/pm_brain/scripts/search_cases.py
+new file mode 100644
+index 0000000..cd98207
+--- /dev/null
++++ b/pm-prototype-os/pm_brain/scripts/search_cases.py
+@@ -0,0 +1,138 @@
++#!/usr/bin/env python3
++"""
++search_cases.py — PM Brain の案件ファイルを検索する。
++
++外部ライブラリ不要（標準ライブラリのみ）。pm_brain/cases/ 配下の
++*.md を読み、YAML風frontmatterと本文を対象に検索する。
++
++使い方:
++    python3 search_cases.py --industry 建築
++    python3 search_cases.py --cause Data
++    python3 search_cases.py --keyword 版管理
++    python3 search_cases.py --status MVP検証中
++    python3 search_cases.py --industry 建築 --cause Data --keyword 図面
++
++引数を何も付けずに実行すると、全ケースの一覧（タイトル・主要メタ情報）を出す。
++"""
++
++import argparse
++import pathlib
++import re
++import sys
++
++CASES_DIR = pathlib.Path(__file__).resolve().parent.parent / "cases"
++
++
++def parse_frontmatter(text: str) -> tuple[dict, str]:
++    """先頭の --- ... --- ブロックを簡易パースする。複雑なYAMLは想定しない。"""
++    m = re.match(r"^---\n(.*?)\n---\n(.*)$", text, re.DOTALL)
++    if not m:
++        return {}, text
++    fm_text, body = m.group(1), m.group(2)
++    meta: dict = {}
++    for line in fm_text.splitlines():
++        line = line.rstrip()
++        if not line or line.lstrip().startswith("#"):
++            continue
++        if ":" not in line:
++            continue
++        key, _, value = line.partition(":")
++        key = key.strip()
++        value = value.strip()
++        if value.startswith("[") and value.endswith("]"):
++            inner = value[1:-1].strip()
++            items = [v.strip().strip('"').strip("'") for v in inner.split(",") if v.strip()]
++            meta[key] = items
++        else:
++            meta[key] = value.strip('"').strip("'")
++    return meta, body
++
++
++def load_cases() -> list[dict]:
++    cases = []
++    if not CASES_DIR.exists():
++        return cases
++    for path in sorted(CASES_DIR.glob("*.md")):
++        if path.name.startswith("_"):
++            continue  # _template.md などをスキップ
++        text = path.read_text(encoding="utf-8")
++        meta, body = parse_frontmatter(text)
++        meta["_path"] = str(path)
++        meta["_body"] = body
++        title_match = re.search(r"^# (.+)$", body, re.MULTILINE)
++        meta["_title"] = title_match.group(1) if title_match else path.stem
++        cases.append(meta)
++    return cases
++
++
++def matches(case: dict, args) -> bool:
++    if args.industry and case.get("industry", "") != args.industry:
++        return False
++    if args.phase and case.get("phase", "") != args.phase:
++        return False
++    if args.status and case.get("status", "") != args.status:
++        return False
++    if args.cause:
++        causes = case.get("cause_category", [])
++        if isinstance(causes, str):
++            causes = [causes]
++        if args.cause not in causes:
++            return False
++    if args.tech:
++        techs = case.get("tech_category", [])
++        if isinstance(techs, str):
++            techs = [techs]
++        if args.tech not in techs:
++            return False
++    if args.keyword:
++        haystack = case.get("_body", "") + " " + case.get("_title", "")
++        if args.keyword not in haystack:
++            return False
++    return True
++
++
++def print_case(case: dict, verbose: bool) -> None:
++    print(f"[{case.get('case_id', '?')}] {case.get('_title', '')}")
++    print(f"  client: {case.get('client', '')} / industry: {case.get('industry', '')} / phase: {case.get('phase', '')}")
++    print(f"  cause: {case.get('cause_category', [])} / tech: {case.get('tech_category', [])}")
++    print(f"  status: {case.get('status', '')} / poc_result: {case.get('poc_result', '')}")
++    print(f"  path: {case.get('_path', '')}")
++    if verbose:
++        lesson_match = re.search(
++            r"## 次案件に使える学び\n(.*?)(\n##|\Z)", case.get("_body", ""), re.DOTALL
++        )
++        if lesson_match:
++            lesson = lesson_match.group(1).strip()
++            if lesson:
++                print(f"  学び: {lesson[:200]}")
++    print()
++
++
++def main() -> int:
++    parser = argparse.ArgumentParser(description="PM Brain case search")
++    parser.add_argument("--industry", help="業界で絞り込む（例: 建築）")
++    parser.add_argument("--phase", help="フェーズで絞り込む（例: 実施設計）")
++    parser.add_argument("--cause", help="真因カテゴリで絞り込む（例: Data）")
++    parser.add_argument("--tech", help="技術カテゴリで絞り込む（例: RAG）")
++    parser.add_argument("--status", help="ステータスで絞り込む")
++    parser.add_argument("--keyword", help="本文・タイトルのキーワード検索")
++    parser.add_argument("-v", "--verbose", action="store_true", help="学びの抜粋も表示する")
++    args = parser.parse_args()
++
++    cases = load_cases()
++    if not cases:
++        print(f"案件ファイルが見つかりません: {CASES_DIR}")
++        print("pm_brain/cases/_template.md をコピーして案件を追加してください。")
++        return 1
++
++    hits = [c for c in cases if matches(c, args)]
++
++    print(f"{len(hits)} 件ヒット（全{len(cases)}件中）\n")
++    for case in hits:
++        print_case(case, args.verbose)
++
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/pm-prototype-os/project_context/gpt_claude_project_sources.md b/pm-prototype-os/project_context/gpt_claude_project_sources.md
+index 58feb8b..56a5ff1 100644
+--- a/pm-prototype-os/project_context/gpt_claude_project_sources.md
++++ b/pm-prototype-os/project_context/gpt_claude_project_sources.md
+@@ -99,6 +99,7 @@ pm-prototype-os/root_cause_engine/examples.md
+ pm-prototype-os/virtual_design_review/README.md
+ pm-prototype-os/virtual_design_review/expert_roles.md
+ pm-prototype-os/virtual_design_review/review_prompt.md
++pm-prototype-os/virtual_design_review/role_separation_protocol.md
+ pm-prototype-os/virtual_design_review/conflict_resolution.md
+ pm-prototype-os/virtual_design_review/final_decision_template.md
+ pm-prototype-os/virtual_design_review/example_drawing_search.md
+@@ -113,6 +114,7 @@ pm-prototype-os/virtual_design_review/example_drawing_search.md
+ ```text
+ pm-prototype-os/domain/construction_domain_map.md
+ pm-prototype-os/domain/construction_glossary.md
++pm-prototype-os/domain/construction_standards.md
+ pm-prototype-os/domain/construction_pm_questions.md
+ pm-prototype-os/domain/construction_ai_opportunity_cards.md
+ pm-prototype-os/domain/construction_research_sources.md
+@@ -157,18 +159,22 @@ pm-prototype-os/library/technology_decision_rules.md
+ 
+ # 5. AIツール別の使い分け情報源
+ 
+-GPT、Claude、Claude Code、Codexを使い分けるための情報。
++GPT、Claude、Claude Code、Codex、Geminiを使い分けるための情報。
+ 
+ ```text
+ pm-prototype-os/ai_tools/gpt.md
+ pm-prototype-os/ai_tools/claude.md
+ pm-prototype-os/ai_tools/claude_code.md
+ pm-prototype-os/ai_tools/codex.md
++pm-prototype-os/ai_tools/gemini.md
+ ```
+ 
+ ## 基本分担
+ 
+ ```text
++Gemini
++→ マルチモーダル一次解析（音声議事録の文字起こし、スキャン図面/画像の一次読解）
++
+ GPT
+ → 構造化、PM判断、真因追求、要件定義
+ 
+@@ -190,6 +196,8 @@ Codex
+ 
+ ```text
+ pm-prototype-os/pm_brain/README.md
++pm-prototype-os/pm_brain/cases/        ← 案件ファイル本体（_template.mdをコピーして追加）
++pm-prototype-os/pm_brain/scripts/search_cases.py  ← 検索スクリプト
+ ```
+ 
+ ## 保存対象
+diff --git a/pm-prototype-os/root_cause_engine/hypothesis_scoring.md b/pm-prototype-os/root_cause_engine/hypothesis_scoring.md
+index 5ffd31c..4d28341 100644
+--- a/pm-prototype-os/root_cause_engine/hypothesis_scoring.md
++++ b/pm-prototype-os/root_cause_engine/hypothesis_scoring.md
+@@ -46,6 +46,36 @@ Priority Score = Evidence + Impact + Frequency + Urgency + Feasibility + Data Re
+ | 18-24 | B | 保留。追加質問が必要 |
+ | 17以下 | C | 今回は扱わない |
+ 
++## フロア制約（重要：単純加算の穴を防ぐ）
++
++合計点だけで判定すると、根拠が薄い仮説でも他項目（特にArent FitやMVP Fit）が高ければSランクに届いてしまう。建設業のように証跡・責任が重い領域では、これは「もっともらしい数字に支えられた誤った確信」を生む危険な穴になる。
++
++以下のフロア制約を、合計点の判定より先に適用する。
++
++```text
++if Evidence <= 2:
++    判定は最大でもB（合計点に関わらず）
++
++if Evidence <= 1:
++    判定は最大でもC（合計点に関わらず）
++```
++
++理由：Evidenceは「顧客発言・資料の根拠」であり、ここが薄い仮説は、他がどれだけ魅力的でも検証する優先度を上げてはいけない。先にやるべきは検証ではなく、Evidenceを上げる質問。
++
++## クイックスコア（実運用向け簡易版）
++
++顧客打ち合わせ直後の30分ゴールでは、8項目すべてを毎回スコアリングするのは重い。仮説が3件を超える、または時間が厳しい場合は以下のコア4項目だけで一次判定し、MVP化を決めた仮説だけ後からフル8項目で精緻化する。
++
++```text
++Quick Score = Evidence + Impact + Feasibility + Arent Fit（最大20点）
++
++15-20: 一次S候補（フルスコアで確定）
++10-14: 一次A候補
++9以下: 保留
++```
++
++フロア制約（Evidence<=2でB以下）はクイックスコアでも適用する。
++
+ ## 仮説カードテンプレート
+ 
+ ```text
+diff --git a/pm-prototype-os/virtual_design_review/README.md b/pm-prototype-os/virtual_design_review/README.md
+index 8503fcb..2fab246 100644
+--- a/pm-prototype-os/virtual_design_review/README.md
++++ b/pm-prototype-os/virtual_design_review/README.md
+@@ -69,3 +69,7 @@ flowchart TD
+ - PoC成功条件
+ - 実装リスク
+ - Claude Code / Codex向け実装指示
++
++## ワンショット vs 3ターン
++
++`review_prompt.md`は7ロールを1回のプロンプトで生成する設計（速いが、対立が作文になるリスクがある）。AI活用が前提の要望や、安全・契約・証跡が重い要望では `role_separation_protocol.md` の3ターン構成（AI EngineerとRisk/Opsだけ独立生成）を使う。使い分けの基準は同ファイル末尾の表を参照。
+diff --git a/pm-prototype-os/virtual_design_review/role_separation_protocol.md b/pm-prototype-os/virtual_design_review/role_separation_protocol.md
+new file mode 100644
+index 0000000..6ec7f09
+--- /dev/null
++++ b/pm-prototype-os/virtual_design_review/role_separation_protocol.md
+@@ -0,0 +1,148 @@
++# Role Separation Protocol
++
++`review_prompt.md`は7ロール＋統合を1回のプロンプトで生成させる設計だった。これは速いが、1つのモデルが1回の思考の中で「いかにも対立してそうな7意見」を作文してしまうリスクを構造的に抱えている。PM側は「複数視点でレビューした」という安心感を得るが、実際には自己対話のループに過ぎない可能性がある。
++
++全7ロールを毎回独立させると遅く・コストも重くなるため、**最も対立しやすい2ロール（AI EngineerとRisk/Operations Reviewer）だけ**を別ターンで独立生成させる。
++
++## 全体の流れ（3ターン構成）
++
++```text
++Turn 1: 5ロール一括生成
++  Construction Domain Expert / Product Manager / Software Architect / UX Designer / Business Owner
++
++Turn 2-A: AI Engineerを単独生成（Turn 1の出力は見せるが、Turn 2-Bの出力は見せない）
++
++Turn 2-B: Risk / Operations Reviewerを単独生成（Turn 1の出力は見せるが、Turn 2-Aの出力は見せない）
++
++Turn 3: 全7ロールの出力を提示した上でPMとして統合する
++```
++
++Turn 2-AとTurn 2-Bを互いに見せない状態で独立生成することで、「AIで自動化したい」という設計に対してAI Engineerが楽観的になりすぎず、Risk/Opsが事前にAI Engineerの結論に引っ張られて当たり障りのない懸念しか出さない、という両方の事故を防ぐ。
++
++## Turn 1 プロンプト（5ロール一括）
++
++```text
++あなたたちは建設DXプロダクトのバーチャル設計レビュー委員会です。
++以下の顧客要望を、5つの専門家ロールでレビューしてください。
++AI EngineerとRisk/Operations Reviewerはこの後別途レビューするため、ここでは含めないでください。
++
++# 入力
++## 顧客要望
++## 背景
++## 現在業務
++## 利用データ
++## 利用中ツール
++## 関係者
++## 期待成果
++## 現時点のMVP案
++
++# ロール
++1. Construction Domain Expert
++2. Product Manager
++3. Software Architect
++4. UX Designer
++5. Business Owner
++
++# 各ロールの出力
++- この要望の見え方
++- 疑うべき真因
++- 追加質問
++- 推奨MVP
++- 実装上の注意
++- 反対意見/懸念
++- 評価: S / A / B / C
++```
++
++## Turn 2-A プロンプト（AI Engineer単独）
++
++```text
++あなたはAI Engineerとして、以下の顧客要望をレビューしてください。
++参考として、他5ロール（Construction Domain Expert / PM / Software Architect / UX / Business Owner）のレビュー結果も渡します。
++
++# 入力
++## 顧客要望（Turn 1と同じ）
++## Turn 1の5ロールレビュー結果
++
++# 出力（expert_roles.md の AI Engineer フォーマットに従う）
++- この要望の見え方
++- 疑うべき真因
++- 追加質問
++- 推奨MVP
++- 実装上の注意
++- 反対意見/懸念
++- 評価: S / A / B / C
++
++# 注意
++- AIで解決できると安易に結論づけない
++- 精度・根拠表示・評価方法・人間レビューの設計を必ず含める
++```
++
++## Turn 2-B プロンプト（Risk/Operations Reviewer単独）
++
++```text
++あなたはRisk / Operations Reviewerとして、以下の顧客要望をレビューしてください。
++参考として、他5ロール（Construction Domain Expert / PM / Software Architect / UX / Business Owner）のレビュー結果も渡します。
++AI Engineerのレビュー結果はまだ存在しないものとして、独立に判断してください。
++
++# 入力
++## 顧客要望（Turn 1と同じ）
++## Turn 1の5ロールレビュー結果
++
++# 出力（expert_roles.md の Risk/Operations Reviewer フォーマットに従う）
++- この要望の見え方
++- 疑うべき真因
++- 追加質問
++- 推奨MVP
++- 実装上の注意
++- 反対意見/懸念
++- 評価: S / A / B / C
++
++# 注意
++- セキュリティ・権限・監査ログ・契約・品質・安全上の責任を必ず検討する
++- 「AIが楽観的に見ている領域」を想定して、あえて悲観的な視点から検証する
++```
++
++## Turn 3 プロンプト（統合）
++
++```text
++以下の7ロールのレビュー結果を統合し、PMとして最終方針を出してください。
++特に、AI EngineerとRisk/Operations Reviewerの評価が食い違っている場合は、
++その対立点を conflict_resolution.md の対立パターンに当てはめて整理してください。
++
++# 入力
++## 顧客要望
++## Construction Domain Expert（Turn 1）
++## Product Manager（Turn 1）
++## Software Architect（Turn 1）
++## UX Designer（Turn 1）
++## Business Owner（Turn 1）
++## AI Engineer（Turn 2-A）
++## Risk / Operations Reviewer（Turn 2-B）
++
++# 統合出力（review_prompt.md の統合出力フォーマットに従う）
++1. 真因候補ランキング
++2. 最初に聞くべき質問
++3. 採用すべきMVP
++4. 採用しないMVPと理由
++5. 推奨UIパターン
++6. 推奨技術構成
++7. PoC成功条件
++8. 主要リスク
++9. 今回やらないこと
++10. Claude Code / Codex向け実装指示
++
++# 追加: AI EngineerとRisk/Opsの対立点
++## 対立点
++## 各ロールの主張
++## PM判断
++## 理由
++```
++
++## いつこのプロトコルを使うか
++
++| 状況 | 推奨方式 |
++|---|---|
++| 顧客要望の初動・規模が小さい | 旧来のワンショット（`review_prompt.md`）で十分 |
++| AI活用が前提の要望（RAG/Agent/自動判定）| このプロトコル（3ターン）を使う |
++| 安全・契約・証跡が重い要望（検査・契約・施工管理系）| このプロトコル（3ターン）を使う |
++| 既に類似案件がPM Brainにあり、判断パターンが分かっている | 旧来のワンショットで十分。3ターンは初見の重い案件向け |
+-- 
+2.43.0
+
