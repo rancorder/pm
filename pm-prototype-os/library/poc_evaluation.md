@@ -113,6 +113,19 @@ Go / Conditional Go / Hold / No-Go
 ## エンジニアに確認すること
 ```
 
+## PM Brainへの反映（重要）
+
+この評価結果は、その場で消費して終わりにしない。`pm_brain/cases/`の該当案件ファイルに、以下の対応でそのまま転記する。
+
+| このファイルの結論 | `pm_brain`側のfrontmatter `poc_result` |
+|---|---|
+| Go | `Go` |
+| Conditional Go | `Conditional Go` |
+| Hold | `Hold` |
+| No-Go | `No-Go` |
+
+「次に検証すること」「顧客に確認すること」の内容は、案件ファイルの「次案件に使える学び」セクションに要約して残す。これを次回似た案件で`search_cases.py`から引けるようにすることが、PM Brainが機能する（＝案件を重ねるほど賢くなる）ための最低条件。
+
 ## 典型的な失敗判定
 
 - デモは受けたが、利用者がいない

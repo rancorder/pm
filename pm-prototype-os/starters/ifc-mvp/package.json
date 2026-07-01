@@ -1,0 +1,27 @@
+{
+  "name": "ifc-mvp-starter",
+  "version": "0.1.0",
+  "private": true,
+  "description": "PM Prototype OS — 顧客確認用IFC MVPスターター。ドラッグ&ドロップでIFCを読み込み、部材一覧と属性を数秒で表示する。",
+  "type": "module",
+  "scripts": {
+    "postinstall": "node scripts/copy-wasm.mjs",
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "web-ifc-viewer": "^1.0.218",
+    "web-ifc-three": "^0.0.126",
+    "web-ifc": "^0.0.39",
+    "three": "^0.149.0"
+  },
+  "overrides": {
+    "three": "^0.149.0"
+  },
+  "devDependencies": {
+    "@types/three": "0.149.0",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.1"
+  }
+}

@@ -33,7 +33,7 @@ python3 search_cases.py --keyword 版管理            # キーワード検索
 python3 search_cases.py --industry 建築 --cause Data -v   # 複合条件＋学びの抜粋表示
 ```
 
-ベクトルDBや埋め込み検索は意図的に使っていない。案件数が数十件を超えてから検討すれば十分で、最初の数年はfrontmatterベースの構造化検索で十分機能する（過剰実装を避ける、というOS自体の思想に合わせている）。
+ベクトルDBや埋め込み検索は意図的に使っていない。案件数が数十件を超えてから検討すれば十分で、最初の数年はfrontmatterベースの構造化検索で十分機能する（過剰実装を避ける、というOS自体の思想に合わせている）。設計判断の詳細な根拠は `pm_brain/architecture_reference.md` を参照。
 
 ### 運用ルール
 

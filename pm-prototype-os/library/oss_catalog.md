@@ -36,11 +36,13 @@ PoC利用可否
 
 ### 候補
 
-- IfcOpenShell
+- IfcOpenShell（Python、サーバーサイド処理向け）
+- web-ifc-viewer / web-ifc（JavaScript、ブラウザ完結・MIT）— `starters/ifc-mvp/`で動作実績あり。詳細は`cards/ifc_analysis.md`
+- Speckle（BIMデータの版管理・相互運用、Apache 2.0）— 詳細は`cards/speckle_version_control.md`
 - BlenderBIM
 - BIMROCKET
 - model-checker
-- IDS tools
+- IDS tools（buildingSMART公式）— 詳細は`cards/ids_validation.md`
 
 ### 使う課題
 
@@ -49,16 +51,17 @@ PoC利用可否
 - モデル品質検証
 - 部材一覧抽出
 - BIM納品チェック
+- モデルのバージョン管理・差分比較
 
 ### PoC向き
 
-高。
+高。特にweb-ifc-viewerはサーバー不要でブラウザ完結するため、初動の速さでは最有力。
 
 ### 注意
 
 - IFCデータ品質に依存
-- 3D表示は後回しでよい
-- ライセンス確認必須
+- 3D表示は後回しでよい（ただしweb-ifc-viewerは3D表示自体が軽量なので、顧客デモのインパクトを優先するなら先に出してもよい）
+- ライセンス確認必須（IfcOpenShell/BlenderBIMはLGPL系、web-ifc-viewer/SpeckleはMIT/Apache 2.0）
 
 ---
 

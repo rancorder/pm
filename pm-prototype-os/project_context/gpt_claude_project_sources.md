@@ -171,22 +171,7 @@ pm-prototype-os/ai_tools/gemini.md
 
 ## 基本分担
 
-```text
-Gemini
-→ マルチモーダル一次解析（音声議事録の文字起こし、スキャン図面/画像の一次読解）
-
-GPT
-→ 構造化、PM判断、真因追求、要件定義
-
-Claude
-→ 長文読解、議事録整理、仕様書化、文章生成
-
-Claude Code
-→ 既存repo理解、コード調査、改修方針
-
-Codex
-→ プロトタイプ生成、コード実装、テスト、PR単位作業
-```
+正本は `pm-prototype-os/08_ai_tool_routing.md`。ここでは重複を避けるため詳細を繰り返さない。要点だけ書くと、Geminiが生データ（音声・画像・スキャンPDF）の入口、GPTが構造化・PM判断、Claudeが長文読解・文章化、Claude Codeが既存repo理解、Codexが実装、という役割分担。
 
 ---
 
