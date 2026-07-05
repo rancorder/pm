@@ -38,6 +38,12 @@ npm run dev        # http://localhost:5173 で起動
 - 対応：`package.json`で`three`を`^0.149.0`に固定し、`overrides`でツリー全体に強制適用している（このリポジトリの`package.json`は対応済み）
 - 新しいエコシステム（`@thatopen/components`）への移行も選択肢だが、API設計がより複雑（World/Fragments/IfcLoaderの明示的な配線が必要）になるため、「30分でMVP」を優先してこちらを採用した
 
+## メンテナンス状況と利用の境界線（顧客に聞かれる前に把握しておく）
+
+- `web-ifc-viewer` は実質的にメンテナンス終了しており、開発は `@thatopen/components` 系へ移行している。**このスターターは「デモ専用」であり、本番のベースにしない**。本番化が決まった時点で ThatOpen系 または サーバーサイド（IfcOpenShell）へ乗り換える前提
+- ブラウザ内wasm処理はファイルサイズに上限がある。目安：**〜50MBはデモ可、それ以上はサーバーサイド処理へ**。顧客が実案件のIFC（数百MB級）を持ってきた場合に露呈する制約なので、デモ冒頭で自分から境界線を言うこと（`library/demo_playbook.md` 原則3）
+- 属性欠損チェックを本格化する場合、独自ルールではなく **IDS（Information Delivery Specification）準拠のチェック**（IfcOpenShellの ifctester 等）に寄せる。「独自チェック」より「buildingSMART標準準拠チェック」の方が、Arent文脈・顧客説得の両方で強い。`cards/ids_validation.md` 参照
+
 ## 次にやると良いこと（本番化に向けて）
 
 - 属性欠損チェックのルールをカスタマイズ可能にする（現状は固定4項目）
