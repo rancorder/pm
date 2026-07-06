@@ -1,0 +1,47 @@
+{
+  "_meta": {
+    "source_doc": "見積書_東和空調.txt",
+    "note": "A系のschema_v0にそのまま乗せて、乗る/乗らないを検証",
+    "doc_type": "supplier_estimate"
+  },
+  "project": {
+    "case_name":       { "value": "○○ビル 通信設備工事 総風機関連 機材見積", "confidence": "medium",
+      "flag": "これは工事案件名ではなく『見積の件名』。A系のcase_nameと粒度が違う(工事全体 vs 一部機材)。" },
+    "location":        { "value": null, "confidence": null, "flag": "見積書に施工場所の記載なし" },
+    "client_division": { "value": null, "confidence": null, "flag": "発注区分に相当する概念がB系に存在しない" },
+    "contractor":      { "value": "日々総合設備株式会社", "confidence": "medium",
+      "flag": "A系のcontractor=受注者。B系ではここは『見積の宛先(発注側)』。役割が逆転。要注意。" },
+    "supplier":        { "value": "株式会社 東和空調工業", "confidence": "high",
+      "flag": "A系スキーマに『供給者(メーカー)』の枠が無い。新フィールドが必要。" },
+    "period_from":     { "value": null, "confidence": null, "flag": "納期は『別途協議』。工期の概念なし" },
+    "estimate_date":   { "value": "2026年6月25日", "confidence": "high", "source": "発行日" },
+    "engineer":        { "value": "山田 太郎", "confidence": "low",
+      "flag": "これは供給者側の営業担当。A系のengineer=自社担当技術者とは別物。同じ枠に入れると混ざる。" }
+  },
+  "cost_summary": {
+    "direct_cost":        { "value": 1591000, "confidence": "medium", "source": "小計",
+      "flag": "A系のdirect_cost(直接工事費)とは意味が違う。B系の小計は『機材費のみ』。" },
+    "common_temp_cost":   { "value": null, "confidence": null, "flag": "B系に仮設費の概念なし" },
+    "site_mgmt_cost":     { "value": null, "confidence": null },
+    "general_mgmt_cost":  { "value": null, "confidence": null },
+    "construction_price": { "value": 1591000, "confidence": "low", "flag": "税抜合計を暫定で入れたが意味が違う" },
+    "tax":                { "value": 159100,  "confidence": "high", "source": "消費税(10%)" },
+    "total":              { "value": 1750100, "confidence": "high", "source": "合計(税込)" }
+  },
+  "line_items": [
+    { "no": "THF-250",  "name_spec": "総風機ユニット 250型", "qty": 3,  "unit": "台", "unit_price": 285000, "amount": 855000, "confidence": "high" },
+    { "no": "THF-DMP",  "name_spec": "専用ダンパ",           "qty": 6,  "unit": "個", "unit_price": 18500,  "amount": 111000, "confidence": "high" },
+    { "no": "THF-DUCT", "name_spec": "接続ダクト φ250",      "qty": 45, "unit": "m",  "unit_price": 4200,   "amount": 189000, "confidence": "high" },
+    { "no": "THF-CTRL", "name_spec": "制御盤 インバータ付",   "qty": 1,  "unit": "面", "unit_price": 420000, "amount": 420000, "confidence": "high" },
+    { "no": "THF-ANTI", "name_spec": "防振架台",             "qty": 3,  "unit": "組", "unit_price": 32000,  "amount": 96000,  "confidence": "high" },
+    { "no": "値引",     "name_spec": "お取引値引",           "qty": -1, "unit": "式", "unit_price": -80000, "amount": -80000, "confidence": "high",
+      "flag": "マイナス行。A系検算ロジックが正しく負値を扱えるかテストになる。" }
+  ],
+  "conditions": [
+    { "text": "据付調整費は本見積に含みません(別途)", "category": "費用範囲", "confidence": "high",
+      "flag": "A系のcategory(検査/接地/材料)に無い新カテゴリ『費用範囲』が必要。" },
+    { "text": "総風機の能力条件は貴社支給の風量計算書に準じます", "category": "図面参照", "confidence": "high" },
+    { "text": "搬入不可の場合、分割搬入費が発生します", "category": "リスク条件", "confidence": "high",
+      "flag": "新カテゴリ『リスク条件』。見積の前提リスクはNTT書類には無い概念。" }
+  ]
+}
