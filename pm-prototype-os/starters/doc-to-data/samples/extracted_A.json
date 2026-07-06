@@ -1,0 +1,51 @@
+{
+  "_meta": {
+    "source_doc": "積算内訳書_日々総合設備.txt",
+    "extracted_by": "Claude (抽出役として実測)",
+    "schema": "canonical/schema_v0.md",
+    "note": "confidence=lowのフィールドは人の確認(HITL)に回す対象"
+  },
+  "project": {
+    "case_name":        { "value": "令和8年度 ○○ビル 通信用配管配線設備工事", "confidence": "high",   "source": "工事件名 行" },
+    "location":         { "value": "東京都港区芝浦△丁目□番",                  "confidence": "high",   "source": "工事場所 行" },
+    "client_division":  { "value": "NTT東日本 神奈川支店",                     "confidence": "low",    "source": "発注区分 行",
+      "flag": "工事場所が港区(東京)なのに発注区分が神奈川支店。不整合の可能性。要確認。" },
+    "contractor":       { "value": "日々総合設備株式会社",                     "confidence": "high",   "source": "受注者 行" },
+    "period_from":      { "value": "令和8年9月1日",                            "confidence": "high",   "source": "工期 行" },
+    "period_to":        { "value": "令和8年12月20日",                          "confidence": "high",   "source": "工期 行" },
+    "estimate_date":    { "value": "令和8年6月18日",                           "confidence": "high",   "source": "積算年月日 行" },
+    "engineer":         { "value": "佐藤 一郎",                                "confidence": "high",   "source": "担当技術者 行" }
+  },
+  "cost_summary": {
+    "direct_cost":         { "value": 6420000, "confidence": "high",   "source": "総括表 直接工事費" },
+    "common_temp_cost":    { "value": 385200,  "confidence": "high",   "source": "総括表 共通仮設費" },
+    "site_mgmt_cost":      { "value": 642000,  "confidence": "high",   "source": "総括表 現場管理費" },
+    "general_mgmt_cost":   { "value": 513600,  "confidence": "high",   "source": "総括表 一般管理費" },
+    "construction_price":  { "value": 7960800, "confidence": "high",   "source": "総括表 工事価格" },
+    "tax":                 { "value": 796080,  "confidence": "high",   "source": "総括表 消費税(10%)" },
+    "total":               { "value": 8756880, "confidence": "high",   "source": "総括表 工事費計" }
+  },
+  "line_items": [
+    { "no": "01", "name_spec": "合成樹脂製可とう電線管 PF-22",   "qty": 480, "unit": "m", "unit_price": 320,    "amount": 153600,  "confidence": "high" },
+    { "no": "02", "name_spec": "ケーブルラック W300",            "qty": 120, "unit": "m", "unit_price": 2800,   "amount": 336000,  "confidence": "high" },
+    { "no": "03", "name_spec": "通信用ケーブル CPEV-S 0.9-50P",  "qty": 850, "unit": "m", "unit_price": 640,    "amount": 544000,  "confidence": "high" },
+    { "no": "04", "name_spec": "光ファイバケーブル SM 24心",     "qty": 620, "unit": "m", "unit_price": 980,    "amount": 607600,  "confidence": "high" },
+    { "no": "05", "name_spec": "端子盤 MDF 200回線",             "qty": 2,   "unit": "面","unit_price": 148000, "amount": 296000,  "confidence": "high" },
+    { "no": "06", "name_spec": "情報用アウトレット CAT6A",       "qty": 180, "unit": "個","unit_price": 1450,   "amount": 261000,  "confidence": "high" },
+    { "no": "07", "name_spec": "配管支持金物 一式",              "qty": 1,   "unit": "式","unit_price": 220000, "amount": 220000,  "confidence": "medium",
+      "flag": "「一式」は数量根拠が書類上不明。内訳確認が望ましい。" },
+    { "no": "08", "name_spec": "電線管敷設 労務",                "qty": 320, "unit": "人","unit_price": 12500,  "amount": 4000000, "confidence": "high" }
+  ],
+  "line_items_incomplete": {
+    "flag": "medium",
+    "note": "元書類に『以下明細つづく…省略』の記載あり。明細は全量ではない。直接工事費計(6,420,000)と抽出明細の合計が一致するかは要検算。"
+  },
+  "conditions": [
+    { "text": "光配線の心線対応表は別紙(配線系統図 No.E-03)による",        "category": "図面参照", "confidence": "high" },
+    { "text": "MDF成端はNTT立会検査を要する。検査希望日：令和8年12月10日", "category": "検査",     "confidence": "high",
+      "extracted": { "立会検査希望日": "令和8年12月10日" } },
+    { "text": "総配線盤の接地はD種接地とする",                            "category": "接地",     "confidence": "medium",
+      "flag": "原文が『总配線盤』(异体字/OCR誤読の可能性)。『総配線盤』と解釈した。" },
+    { "text": "使用材料は全てNTT認定品または同等品以上とすること",        "category": "材料",     "confidence": "high" }
+  ]
+}
