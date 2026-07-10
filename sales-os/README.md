@@ -45,6 +45,7 @@
 ## 案件一覧
 
 - [福美人株式会社](./clients/fukubijin/README.md)
+  - [福美水 SU初回商談スライド](./clients/fukubijin/presentation/)
 
 ---
 
@@ -55,3 +56,4 @@
 - 最新判断: 稼働レビュー案件ではなく、SU開始前の準備遅延案件
 - 主要ボトルネック: 相談者・商談者アサイン未確定
 - 重要導線: サンプル送付 → 3点取得 → 使用感確認 → 商談化
+- プレゼン: `sales-os/clients/fukubijin/presentation/index.html`
