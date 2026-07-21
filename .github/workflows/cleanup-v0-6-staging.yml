@@ -1,0 +1,24 @@
+name: Cleanup v0.6 staging branch
+
+on:
+  pull_request:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/cleanup-v0-6-staging.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Delete temporary staging branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          git init --quiet
+          git remote add origin "https://x-access-token:${GH_TOKEN}@github.com/${REPOSITORY}.git"
+          git push origin --delete automation/v0-6-generated
