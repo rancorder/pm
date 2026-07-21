@@ -1,36 +1,117 @@
-# PM Prototype OS v0.1
+# PM Prototype OS v0.6.1
 
-ArentでのエンジニアPM業務に向けた、顧客ニーズ把握・要件定義・プロトタイプ作成を超短時間化するためのPM補助OS。
+ArentでのエンジニアPM業務に向けた、**顧客発言→真因仮説→技術判断→MVP契約→実装→自動検証→学習回収**を高速化するPM実行OS。
 
-## 目的
+## 最初に読むもの
 
-顧客ヒアリングから、課題整理・要件定義・MVP設計・技術探索・プロトタイプ指示までを一気通貫で行う。
+1. [`00_data_policy.md`](./00_data_policy.md) — 全ファイルより優先するデータ安全規則
+2. [`SPECIFICATION.md`](./SPECIFICATION.md) — OS全体の正式仕様
+3. [`project_context/project_instruction_prompt.md`](./project_context/project_instruction_prompt.md) — ChatGPT Project等の指示へ貼るプロンプト
+4. [`README.md`](./README.md) — クイックスタート
+
+## v0.6系で変わったこと
+
+従来は要件定義とMVP設計が中心だった。v0.6系では、爆速開発と最高品質を両立させるため、2つの実行レイヤーと正式な運用仕様を追加した。
+
+1. **Technical Decision OS**
+   - 条件付き技術選択
+   - 相性・非互換・バージョン制約
+   - 既知の失敗症状
+   - 比較実験
+   - PoC→本番移行条件
+
+2. **MVP Factory**
+   - Executable MVP Contract
+   - Golden Dataset
+   - 自動品質ゲート
+   - Live / Replay / Mockデモ
+   - PoC結果の学習回収
+
+3. **Project Instruction**
+   - 依頼内容から必要モードを自動選択
+   - データ安全、Evidence、技術判断、品質検証を統合
+   - 旧Instructionを一本化し、正本を明示
+
+## 全体フロー
 
 ```mermaid
 flowchart TD
-  A[顧客ヒアリング] --> B[課題の構造化]
-  B --> C[業務フロー可視化]
-  C --> D[要件定義]
-  D --> E[GitHub/OSS技術探索]
-  E --> F[MVP設計]
-  F --> G[プロトタイプ指示]
-  G --> H[顧客レビュー]
-  H --> I[差分を再要件化]
+  A[顧客ヒアリング・現物] --> B[8カテゴリ真因分析]
+  B --> C[Evidence付き仮説]
+  C --> D[MVP候補3案]
+  D --> E[Technical Decision OS]
+  E --> F[MVP Contract]
+  F --> G[Starter / AI実装]
+  G --> H[Golden Dataset + Quality Gate]
+  H --> I[顧客デモ Live/Replay/Mock]
+  I --> J[Pass / Pivot / Kill]
+  J --> K[PM Brain・技術知識へ回収]
+  K --> B
 ```
 
 ## コア思想
 
 - 顧客の発言をそのまま要件にしない
-- 表面的な要望と根本課題を分ける
-- MVPは「作れるもの」ではなく「検証できるもの」にする
-- GitHubはコード置き場ではなく、技術知識データベースとして使う
-- PMはプロトタイプを作る人ではなく、仮説検証速度を設計する人になる
+- 現物 > 顧客原文 > 業務フロー > 社内メモ > AI要約 > AI推測
+- 表面的な要望と真因を分ける
+- MVPは最小機能ではなく最小検証単位
+- 技術名を集めず、条件→判断→理由→失敗症状→切替条件を保存する
+- 成功例よりFailure Cardと非採用条件を先に検索する
+- AI抽出・生成の後段に決定論的検証を置く
+- デモはLiveだけに依存せずReplay/Mockを持つ
+- PM最終判断はAIに書かせない
+- 案件を重ねるほど、質問・技術判断・テストが増える構造にする
 
-## フォルダ構成
+## 動作モード
+
+依頼に応じて必要なモードだけを使用する。
+
+| Mode | 主な目的 |
+|---|---|
+| Triage | 情報源・欠損・次アクション整理 |
+| Discovery | 顧客原文・8カテゴリ真因・質問 |
+| Requirement | 業務フロー・要件・非要件 |
+| Technical Decision | 採用/非採用・相性・失敗・移行 |
+| MVP Design | MVP3案・推奨案・Contract |
+| Build | 実装・テスト・PR |
+| Review | 設計・コード・PoC・リスク検証 |
+| Learning | PM Brain・技術知識へ回収 |
+
+## 30分 / 2時間 / MVP完成の3段階
+
+### 30分：一次仮説
+
+- 表面的な要望と真因候補
+- Evidenceの強弱
+- 次回確認質問
+- MVP方向性3案
+- 技術カテゴリの当たり
+
+### 2時間：実装着手可能
+
+- 推奨MVP
+- 入力・処理・出力
+- 画面・業務フロー
+- Technical Decision候補
+- MVP Contract初版
+- Golden Case候補
+- 実装指示
+
+### MVP完成：顧客提示可能
+
+- Contract必須項目が埋まっている
+- Technical Decision IDが存在する
+- Golden Datasetを通している
+- 必須Quality Gateが成功している
+- ReplayまたはMockがある
+- Pass / Pivot / Kill条件がある
+
+## ディレクトリ
 
 ```text
 pm-prototype-os/
-  README.md
+  00_data_policy.md
+  SPECIFICATION.md           # 正式仕様
   01_customer_interview.md
   02_need_to_requirement.md
   03_mvp_scope.md
@@ -38,67 +119,91 @@ pm-prototype-os/
   05_engineer_handoff.md
   06_arent_domain_questions.md
   07_github_research_targets.md
-  cards/
-    tech_card_template.md
-    ifc_analysis.md
-    bim_ai_agent.md
-    construction_rag.md
+  08_ai_tool_routing.md
+
+  project_context/           # Project指示・読み込み索引
+  root_cause_engine/         # 真因分析・Evidence
+  virtual_design_review/     # 独立レビュー
+  technical_decision_os/     # 技術判断・相性・失敗・移行知識
+  mvp_factory/               # Contract・Golden Dataset・品質ゲート
+  starters/                  # 動くMVPスターター
+  cards/                     # 人間向けTech Card
+  pm_brain/                  # 案件横断の判断メモリ
+  orchestration/             # 自動実行
+  library/                   # 評価・デモ・OSS台帳
+  domain/                    # 建設DX固有知識
 ```
 
-## 標準出力
+## 最短クイックスタート
 
-顧客打ち合わせ後、以下を即時生成する。
+### 1. プロジェクト指示を設定する
 
-1. 顧客ニーズ
-2. 本当の課題
-3. 現行業務フロー
-4. 理想業務フロー
-5. 要件定義
-6. MVP候補3案
-7. 画面案
-8. 技術候補
-9. エンジニア確認事項
-10. 次回顧客に聞く質問
+`project_context/project_instruction_prompt.md`の「貼り付け用プロンプト」をChatGPT Project等の指示へ登録する。
 
-## 初期ターゲット領域
+### 2. 真因を切る
 
-- BIM / Revit / IFC
-- 配筋・建設設計支援
-- プラント設計支援
-- 図面・仕様書・議事録RAG
-- 建設業務のAI Agent化
-- PM要件定義支援
+`01_customer_interview.md`と`root_cause_engine/`で、Data / Process / Tool / People / Rule / Organization / Contract / Costへ分解する。
 
-## 使い方
+### 3. MVPを決める
 
-1. 顧客議事録を `01_customer_interview.md` の型に入れる
-2. `02_need_to_requirement.md` で発言を要件へ変換する
-3. `03_mvp_scope.md` でMVPを切る
-4. `04_prototype_prompt.md` をClaude / Codex / Cursorに渡す
-5. `05_engineer_handoff.md` でエンジニアに渡す
+`03_mvp_scope.md`でDemo / Data / Workflow MVPを比較し、推奨案を1つ選ぶ。
 
-## 最終目標
+### 4. 技術判断を検索する
 
-目標値を1つに決め切らず「30分」と「2時間」を別の用途で混在させていたのが旧版の問題だった。これを2段階のゴールとして明確化する。
+```bash
+python3 technical_decision_os/scripts/search_knowledge.py --keyword "対象技術"
+python3 technical_decision_os/scripts/search_knowledge.py --kind failure --domain "対象領域"
+```
 
-### 30分ゴール（一次仮説・顧客との次回約束用）
+### 5. MVP Contractを作る
 
-60分の顧客打ち合わせ直後、30分以内に以下を出す。PM Brainに類似案件が蓄積されているほど、この30分の精度が上がる設計。
+```bash
+cp mvp_factory/contracts/_template.json path/to/mvp_contract.json
+```
 
-- 表面的な要望と真因候補（複数）
-- 切り分け質問（次回聞くこと）
-- MVPの方向性（3案の骨子レベル）
-- 技術候補の当たり（カテゴリレベル）
+### 6. StarterまたはAIで実装する
 
-### 2時間ゴール（実装着手用）
+既存Starterを0→60の開始地点として使い、`04_prototype_prompt.md`と`05_engineer_handoff.md`へContractとDecision IDを渡す。
 
-30分ゴールの内容をベースに、2時間以内に以下まで仕上げる。
+### 7. 品質ゲート
 
-- 要件定義
-- MVP案（確定）
-- 画面イメージ
-- 技術候補（確定）
-- エンジニア向け実装方針
-- 次回顧客確認事項
+```bash
+python3 technical_decision_os/scripts/validate_knowledge.py
+python3 mvp_factory/scripts/verify_mvp.py \
+  --contract path/to/mvp_contract.json \
+  --project-root path/to/project
+```
 
-30分で全部を確定させようとしないこと。30分は「次に何を確認すべきかが明確になっている」状態を指し、2時間で実装着手できる粒度に仕上げる。
+OS全体を変更した場合：
+
+```bash
+python3 scripts/verify_os.py
+```
+
+### 8. 学習を戻す
+
+PoC結果を`pm_brain/cases/`へ記録し、効いた知見はEvidenceを昇格、失敗はFailure Cardへ追加する。
+
+## 情報の保存先
+
+| 情報 | 保存先 |
+|---|---|
+| 顧客の生データ・図面・契約 | Google Drive等の一次情報置き場 |
+| 案件の要約・仮説・PoC結果 | `pm_brain/cases/` |
+| 人間が読む技術概要 | `cards/` |
+| 機械検索する技術判断 | `technical_decision_os/knowledge/` |
+| MVP完成条件 | 案件の`mvp_contract.json` |
+| 正解ケース | 案件のGolden Dataset |
+| 自動検証結果 | `*.quality-report.json` |
+
+## 重要な境界
+
+- 組織・契約・`00_data_policy.md`は速度より優先する
+- Tech CardとTechnical Decision JSONは役割が違う
+  - Card：理解・説明
+  - JSON：検索・検証・参照
+- PoC構成と本番構成を同一視しない
+- E0/E1の知識を標準採用しない
+- L3データをクラウドAIやGitHubへ無条件に渡さない
+- Quality Gate失敗を説明だけで握りつぶさない
+- 成功したコードだけでなく、失敗条件とテストを資産化する

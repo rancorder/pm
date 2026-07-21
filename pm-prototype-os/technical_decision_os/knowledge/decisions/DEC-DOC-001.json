@@ -1,0 +1,70 @@
+{
+  "id": "DEC-DOC-001",
+  "kind": "decision",
+  "title": "異種書類は共通コア＋タイプ別プロファイルで正準化する",
+  "status": "active",
+  "domains": [
+    "doc-to-data",
+    "construction-documents",
+    "data-modeling"
+  ],
+  "summary": "異なる書類種類を単一の平坦スキーマに押し込まず、共通コアと書類タイプ別プロファイルの2層構造を選ぶ。",
+  "context": {
+    "document_types": "2種類以上",
+    "semantic_role_reversal": true,
+    "target": "AI抽出後の正準データ"
+  },
+  "conditions": {
+    "all": [
+      "異なる発行主体・立場の書類を扱う",
+      "同じ項目名でも意味が変わる可能性がある"
+    ],
+    "any": [
+      "null増加",
+      "意味ズレ",
+      "割引・マイナス行・特殊行がある"
+    ],
+    "not": []
+  },
+  "recommend": [
+    "共通コア＋タイプ別プロファイル",
+    "self_role等の立場を明示するフィールド",
+    "タイプ別検算"
+  ],
+  "avoid": [
+    "全書類を単一の平坦スキーマへ固定",
+    "1種類のサンプルだけで汎用化"
+  ],
+  "tradeoffs": [
+    "スキーマ数は増えるが、意味ズレとnull乱発を抑えられる",
+    "タイプ追加時にプロファイル設計が必要"
+  ],
+  "switch_triggers": [
+    "新しい書類タイプで共通コアの意味が破綻したらコアを再設計",
+    "同一タイプ内でも意味差が大きい場合はサブプロファイルへ分割"
+  ],
+  "related_ids": [
+    "FAIL-DOC-001"
+  ],
+  "evidence": [
+    {
+      "level": "E3",
+      "type": "verified_experiment",
+      "source": "CHANGELOG.md v0.5 / pm-prototype-os/starters/doc-to-data/",
+      "verified_at": "2026-07-22",
+      "notes": "A系スキーマへB系を適用した際、15フィールド中6がnull・10が意味ズレ。2層へ変更。"
+    }
+  ],
+  "confidence": 0.94,
+  "last_verified": "2026-07-22",
+  "review_due": "2026-10-22",
+  "owners": [
+    "PM",
+    "Data Engineer"
+  ],
+  "tags": [
+    "canonical-schema",
+    "document-extraction",
+    "deterministic-validation"
+  ]
+}

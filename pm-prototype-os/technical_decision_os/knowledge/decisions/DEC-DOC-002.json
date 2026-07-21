@@ -1,0 +1,70 @@
+{
+  "id": "DEC-DOC-002",
+  "kind": "decision",
+  "title": "AI抽出の後段に決定論的検算層を置く",
+  "status": "active",
+  "domains": [
+    "doc-to-data",
+    "AI-extraction",
+    "quality-gate"
+  ],
+  "summary": "抽出モデルの賢さだけに依存せず、合計・件数・省略・符号・必須項目をPython等で決定論的に検算する。",
+  "context": {
+    "input": "見積・積算・定型帳票",
+    "risk": "部分抽出や多段推論で確度低下",
+    "output": "転記前の要確認付きドラフト"
+  },
+  "conditions": {
+    "all": [
+      "数値・明細・必須項目がある",
+      "誤転記の業務影響がある"
+    ],
+    "any": [
+      "合計値がある",
+      "件数比較ができる",
+      "省略検出ルールを定義できる"
+    ],
+    "not": []
+  },
+  "recommend": [
+    "AI抽出と決定論的検算を分離",
+    "要確認フラグ付きドラフト",
+    "検算失敗時は自動確定しない"
+  ],
+  "avoid": [
+    "LLM出力をそのまま完成書類へ転記",
+    "モデル自己評価のみで品質判定"
+  ],
+  "tradeoffs": [
+    "ルール実装コストは増えるが、説明可能性と再現性が上がる"
+  ],
+  "switch_triggers": [
+    "検算不能項目が多い場合は人間確認UIを追加",
+    "ルールが案件ごとに変わる場合はルール設定画面を検討"
+  ],
+  "related_ids": [
+    "DEC-DOC-001",
+    "FAIL-DOC-001"
+  ],
+  "evidence": [
+    {
+      "level": "E3",
+      "type": "verified_experiment",
+      "source": "CHANGELOG.md v0.5 / starters/doc-to-data/verify.py",
+      "verified_at": "2026-07-22",
+      "notes": "明細全量でない事実を捕捉したのはAIではなくPython検算層。"
+    }
+  ],
+  "confidence": 0.96,
+  "last_verified": "2026-07-22",
+  "review_due": "2026-10-22",
+  "owners": [
+    "PM",
+    "Engineer"
+  ],
+  "tags": [
+    "verification",
+    "human-in-the-loop",
+    "structured-output"
+  ]
+}

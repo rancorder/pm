@@ -1,0 +1,33 @@
+{
+  "id": "",
+  "kind": "decision",
+  "title": "",
+  "status": "candidate",
+  "domains": [],
+  "summary": "",
+  "context": {},
+  "related_ids": [],
+  "evidence": [
+    {
+      "level": "E0",
+      "type": "hypothesis",
+      "source": "",
+      "verified_at": "2026-07-22",
+      "notes": "未検証"
+    }
+  ],
+  "confidence": 0.0,
+  "last_verified": "2026-07-22",
+  "review_due": "2026-08-22",
+  "owners": [],
+  "tags": [],
+  "conditions": {
+    "all": [],
+    "any": [],
+    "not": []
+  },
+  "recommend": [],
+  "avoid": [],
+  "tradeoffs": [],
+  "switch_triggers": []
+}

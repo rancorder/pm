@@ -1,0 +1,38 @@
+{
+  "id": "",
+  "kind": "compatibility",
+  "title": "",
+  "status": "candidate",
+  "domains": [],
+  "summary": "",
+  "context": {},
+  "related_ids": [],
+  "evidence": [
+    {
+      "level": "E0",
+      "type": "hypothesis",
+      "source": "",
+      "verified_at": "2026-07-22",
+      "notes": "未検証"
+    }
+  ],
+  "confidence": 0.0,
+  "last_verified": "2026-07-22",
+  "review_due": "2026-08-22",
+  "owners": [],
+  "tags": [],
+  "components": [
+    {
+      "name": "",
+      "version": ""
+    },
+    {
+      "name": "",
+      "version": ""
+    }
+  ],
+  "relation": "compatible_with_constraints",
+  "constraints": [],
+  "failure_symptoms": [],
+  "mitigations": []
+}

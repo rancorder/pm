@@ -1,0 +1,74 @@
+{
+  "id": "FAIL-DOC-001",
+  "kind": "failure",
+  "title": "単一スキーマを異種書類へ流用するとnullと意味ズレが増える",
+  "status": "active",
+  "domains": [
+    "doc-to-data",
+    "schema-design",
+    "AI-extraction"
+  ],
+  "summary": "最初の書類だけで作った平坦スキーマを別種類へ流用すると、欠損だけでなく役割語の意味反転を見逃す。",
+  "context": {
+    "observed_in": "電気工事積算書A系と供給者見積B系を模した検証",
+    "impact": "誤転記・誤判断"
+  },
+  "symptom": [
+    "nullフィールドが急増する",
+    "同じフィールド名なのに意味が違う",
+    "割引・マイナス行が消える",
+    "contractor等の役割語が反転する"
+  ],
+  "root_cause": [
+    "1種類目の書類に固有の前提を共通仕様と誤認",
+    "書類の立場・発行主体をデータモデルへ入れていない",
+    "2種類目での反証検証をしていない"
+  ],
+  "bad_combination": [
+    "single flat schema",
+    "heterogeneous documents",
+    "automatic final transfer without review"
+  ],
+  "diagnosis": [
+    "書類タイプ別にnull率を比較",
+    "原文と各フィールドの意味を逆引き",
+    "符号付き明細・割引行・役割語を重点確認"
+  ],
+  "fix": [
+    "DEC-DOC-001へ切り替える",
+    "共通コア＋タイプ別プロファイルへ分割",
+    "self_roleを明示",
+    "要確認フラグを追加"
+  ],
+  "prevention_tests": [
+    "意味の異なる2種類目を必ず通す",
+    "フィールド意味対応表を作る",
+    "null率だけでなく意味一致率を確認",
+    "割引・マイナス行をGolden Caseへ入れる"
+  ],
+  "related_ids": [
+    "DEC-DOC-001",
+    "DEC-DOC-002"
+  ],
+  "evidence": [
+    {
+      "level": "E3",
+      "type": "verified_experiment",
+      "source": "CHANGELOG.md v0.5 / starters/doc-to-data/",
+      "verified_at": "2026-07-22",
+      "notes": "単層スキーマは15フィールド中6がnull・10が意味ズレ。"
+    }
+  ],
+  "confidence": 0.97,
+  "last_verified": "2026-07-22",
+  "review_due": "2026-10-22",
+  "owners": [
+    "Data Engineer",
+    "PM"
+  ],
+  "tags": [
+    "anti-pattern",
+    "schema",
+    "semantic-drift"
+  ]
+}
