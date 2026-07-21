@@ -1,0 +1,25 @@
+name: PM Prototype OS Quality
+
+on:
+  pull_request:
+    paths:
+      - "pm-prototype-os/**"
+      - ".github/workflows/pm-prototype-os-quality.yml"
+  push:
+    branches: [main]
+    paths:
+      - "pm-prototype-os/**"
+
+permissions:
+  contents: read
+
+jobs:
+  verify-os:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify JSON, Python and technical knowledge
+        run: python3 pm-prototype-os/scripts/verify_os.py
