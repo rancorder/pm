@@ -1,0 +1,61 @@
+{
+  "id": "MIG-IFC-001",
+  "kind": "migration",
+  "title": "ブラウザIFCデモ構成を本番IFC処理へ持ち込まない",
+  "status": "active",
+  "domains": [
+    "BIM",
+    "IFC",
+    "architecture"
+  ],
+  "summary": "顧客デモは既存IFCスターターで高速化し、本番化では保守性・処理量・IDS検証に応じてThatOpen/IfcOpenShell/ifctester系へ再設計する。",
+  "context": {
+    "prototype_goal": "属性一覧・欠損候補を短時間で提示",
+    "known_boundary": "ブラウザ中心・デモ規模"
+  },
+  "from": {
+    "stack": "web-ifc-viewer starter",
+    "purpose": "PoC / customer demo"
+  },
+  "to": {
+    "stack": "ThatOpen and/or IfcOpenShell + ifctester",
+    "purpose": "production processing / IDS-aligned validation"
+  },
+  "triggers": [
+    "デモ上限を超える大容量IFCを扱う",
+    "継続保守が必要",
+    "サーバー側バッチ処理が必要",
+    "IDS準拠チェックが必要",
+    "複数案件・複数利用者で運用する"
+  ],
+  "migration_cost": "medium",
+  "rollback": [
+    "PoCデモは既存starterを保持",
+    "本番処理結果をJSONで分離し、表示層を再利用",
+    "移行前後で同一Golden IFCの結果を比較"
+  ],
+  "related_ids": [
+    "COMP-IFC-001"
+  ],
+  "evidence": [
+    {
+      "level": "E2",
+      "type": "starter_boundary_review",
+      "source": "CHANGELOG.md v0.4 / cards/ifc_analysis.md",
+      "verified_at": "2026-07-22",
+      "notes": "IFCスターターの本番境界、デモ上限、後継候補を文書化。実本番移行は未検証。"
+    }
+  ],
+  "confidence": 0.78,
+  "last_verified": "2026-07-22",
+  "review_due": "2026-08-22",
+  "owners": [
+    "Tech Lead",
+    "BIM Engineer"
+  ],
+  "tags": [
+    "prototype-to-production",
+    "ifc",
+    "ids"
+  ]
+}

@@ -1,0 +1,61 @@
+{
+  "contract_version": "1.0",
+  "mvp_id": "",
+  "title": "",
+  "owner": "",
+  "created_at": "2026-07-22",
+  "hypothesis": {
+    "statement": "",
+    "evidence": [],
+    "falsification": ""
+  },
+  "user": {
+    "role": "",
+    "decision_to_make": ""
+  },
+  "scope": {
+    "input": [],
+    "processing": [],
+    "output": [],
+    "out_of_scope": []
+  },
+  "data": {
+    "classification": "L1",
+    "local_processing_required": false,
+    "datasets": [],
+    "golden_dataset": ""
+  },
+  "acceptance": {
+    "functional": [],
+    "quality": [],
+    "abstention": [],
+    "latency_ms": null,
+    "cost_per_run_jpy": null
+  },
+  "technical_decisions": {
+    "required_ids": [],
+    "compatibility_checks": [],
+    "known_failures": [],
+    "migration_rules": []
+  },
+  "quality_gate": {
+    "commands": [],
+    "required_artifacts": [],
+    "block_on_failure": true
+  },
+  "demo": {
+    "modes": ["live", "replay", "mock"],
+    "reset_argv": [],
+    "fallback": ""
+  },
+  "decision": {
+    "pass": "",
+    "pivot": "",
+    "kill": ""
+  },
+  "result": {
+    "status": "not_run",
+    "evidence": [],
+    "quality_report": ""
+  }
+}

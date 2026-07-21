@@ -1,0 +1,79 @@
+{
+  "id": "COMP-IFC-001",
+  "kind": "compatibility",
+  "title": "web-ifc-viewer系とthreeは依存バージョンを単一化する",
+  "status": "active",
+  "domains": [
+    "BIM",
+    "IFC",
+    "frontend"
+  ],
+  "summary": "web-ifc-viewer・web-ifc-three・threeをPoCで組み合わせる場合、threeの複数バージョン混在を避け、WASM配置もビルド工程へ固定する。",
+  "context": {
+    "use_case": "ブラウザIFCデモ",
+    "scope": "PoC・顧客デモ",
+    "starter": "starters/ifc-mvp"
+  },
+  "components": [
+    {
+      "name": "web-ifc-viewer",
+      "version": "1.0.x"
+    },
+    {
+      "name": "web-ifc-three",
+      "version": "0.0.x"
+    },
+    {
+      "name": "three",
+      "version": "0.149.x"
+    },
+    {
+      "name": "web-ifc",
+      "version": "0.0.x"
+    }
+  ],
+  "relation": "compatible_with_constraints",
+  "constraints": [
+    "package overridesでthreeを単一バージョンへ固定",
+    "複数のthreeインスタンスを混在させない",
+    "postinstall等でWASMを所定位置へコピー",
+    "本番採用ではなくPoC境界を明記"
+  ],
+  "failure_symptoms": [
+    "3Dモデルが表示されない",
+    "型不整合",
+    "runtime error",
+    "オブジェクト型判定が不安定",
+    "WASM読み込み404"
+  ],
+  "mitigations": [
+    "starterのpackage.jsonとcopy-wasm処理を再利用",
+    "npm dependency treeでthree重複を確認",
+    "実IFCファイルで読み込みテスト"
+  ],
+  "related_ids": [
+    "MIG-IFC-001"
+  ],
+  "evidence": [
+    {
+      "level": "E3",
+      "type": "verified_experiment",
+      "source": "CHANGELOG.md v0.3 / starters/ifc-mvp/package.json",
+      "verified_at": "2026-07-22",
+      "notes": "peer dependency不整合を解消し、実IFCで壁・ドア・窓・属性取得を確認。"
+    }
+  ],
+  "confidence": 0.95,
+  "last_verified": "2026-07-22",
+  "review_due": "2026-09-22",
+  "owners": [
+    "Frontend Engineer",
+    "BIM Engineer"
+  ],
+  "tags": [
+    "three",
+    "web-ifc",
+    "wasm",
+    "peer-dependency"
+  ]
+}

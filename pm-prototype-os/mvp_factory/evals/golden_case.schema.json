@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/golden_case.schema.json",
+  "title": "MVP Golden Case",
+  "type": "object",
+  "required": ["case_id", "title", "category", "input", "expected", "acceptance", "source_ref", "data_classification"],
+  "properties": {
+    "case_id": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "category": {"enum": ["normal", "edge", "abstention", "regression", "customer-critical"]},
+    "input": {},
+    "expected": {},
+    "acceptance": {"type": "object"},
+    "source_ref": {"type": "string"},
+    "data_classification": {"enum": ["L1", "L2", "L3"]},
+    "notes": {"type": "string"}
+  }
+}

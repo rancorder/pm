@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.local/technical_knowledge.schema.json",
+  "title": "PM Prototype OS Technical Knowledge",
+  "type": "object",
+  "required": [
+    "id",
+    "kind",
+    "title",
+    "status",
+    "domains",
+    "summary",
+    "evidence",
+    "confidence",
+    "last_verified",
+    "review_due",
+    "tags"
+  ],
+  "properties": {
+    "id": {"type": "string", "pattern": "^(DEC|COMP|FAIL|BENCH|MIG)-[A-Z0-9-]+$"},
+    "kind": {"enum": ["decision", "compatibility", "failure", "benchmark", "migration"]},
+    "title": {"type": "string", "minLength": 1},
+    "status": {"enum": ["candidate", "active", "rejected", "retired"]},
+    "domains": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "summary": {"type": "string", "minLength": 1},
+    "context": {"type": "object"},
+    "conditions": {"type": "object"},
+    "recommend": {"type": ["array", "object", "string"]},
+    "avoid": {"type": ["array", "object", "string"]},
+    "tradeoffs": {"type": "array", "items": {"type": "string"}},
+    "switch_triggers": {"type": "array", "items": {"type": "string"}},
+    "components": {"type": "array", "items": {"type": "object"}},
+    "relation": {"enum": ["recommended", "compatible", "compatible_with_constraints", "avoid", "prohibited"]},
+    "constraints": {"type": "array", "items": {"type": "string"}},
+    "failure_symptoms": {"type": "array", "items": {"type": "string"}},
+    "mitigations": {"type": "array", "items": {"type": "string"}},
+    "symptom": {"type": ["array", "string"]},
+    "root_cause": {"type": ["array", "string"]},
+    "bad_combination": {"type": "array", "items": {"type": "string"}},
+    "diagnosis": {"type": "array", "items": {"type": "string"}},
+    "fix": {"type": "array", "items": {"type": "string"}},
+    "prevention_tests": {"type": "array", "items": {"type": "string"}},
+    "problem": {"type": "string"},
+    "candidates": {"type": "array"},
+    "dataset": {"type": "object"},
+    "metrics": {"type": "array"},
+    "results": {"type": ["array", "object"]},
+    "winner": {"type": ["string", "object"]},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "from": {"type": ["string", "object"]},
+    "to": {"type": ["string", "object"]},
+    "triggers": {"type": "array", "items": {"type": "string"}},
+    "migration_cost": {"enum": ["low", "medium", "high", "unknown"]},
+    "rollback": {"type": "array", "items": {"type": "string"}},
+    "related_ids": {"type": "array", "items": {"type": "string"}},
+    "evidence": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["level", "type", "source", "verified_at", "notes"],
+        "properties": {
+          "level": {"enum": ["E0", "E1", "E2", "E3", "E4", "E5"]},
+          "type": {"type": "string"},
+          "source": {"type": "string"},
+          "verified_at": {"type": "string", "format": "date"},
+          "notes": {"type": "string"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "last_verified": {"type": "string", "format": "date"},
+    "review_due": {"type": "string", "format": "date"},
+    "owners": {"type": "array", "items": {"type": "string"}},
+    "tags": {"type": "array", "items": {"type": "string"}}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"kind": {"const": "decision"}}},
+      "then": {"required": ["conditions", "recommend", "avoid", "tradeoffs", "switch_triggers"]}
+    },
+    {
+      "if": {"properties": {"kind": {"const": "compatibility"}}},
+      "then": {"required": ["components", "relation", "constraints", "failure_symptoms", "mitigations"]}
+    },
+    {
+      "if": {"properties": {"kind": {"const": "failure"}}},
+      "then": {"required": ["symptom", "root_cause", "bad_combination", "diagnosis", "fix", "prevention_tests"]}
+    },
+    {
+      "if": {"properties": {"kind": {"const": "benchmark"}}},
+      "then": {"required": ["problem", "candidates", "dataset", "metrics", "results", "winner", "limitations"]}
+    },
+    {
+      "if": {"properties": {"kind": {"const": "migration"}}},
+      "then": {"required": ["from", "to", "triggers", "migration_cost", "rollback"]}
+    }
+  ],
+  "additionalProperties": true
+}
